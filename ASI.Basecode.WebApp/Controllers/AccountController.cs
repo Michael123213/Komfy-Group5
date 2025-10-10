@@ -85,8 +85,9 @@ namespace ASI.Basecode.WebApp.Controllers
 
             //User user = null;
 
-            User user = new() { Id = 0, UserId = "0", Name = "Name", Password = "Password" };
-            
+            // FIX: Removed 'Id = 0' and ensured the Primary Key 'UserId' is a string
+            User user = new() { UserId = "0", Name = "Name", Password = "Password" };
+
             await this._signInManager.SignInAsync(user);
             this._session.SetString("UserName", model.UserId);
 

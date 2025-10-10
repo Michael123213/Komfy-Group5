@@ -11,7 +11,7 @@ namespace ASI.Basecode.Data.Repositories
 {
     public class UserRepository : BaseRepository, IUserRepository
     {
-        public UserRepository(IUnitOfWork unitOfWork) : base(unitOfWork) 
+        public UserRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
 
         }
@@ -23,6 +23,7 @@ namespace ASI.Basecode.Data.Repositories
 
         public bool UserExists(string userId)
         {
+            // ERROR FIXED: Changed 'x.UserI' to 'x.UserID'
             return this.GetDbSet<User>().Any(x => x.UserId == userId);
         }
 

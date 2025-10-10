@@ -17,42 +17,29 @@ namespace ASI.Basecode.Data
         {
         }
 
+        // The main entity sets (DbSet) for all six tables:
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Book> Books { get; set; }
+        public virtual DbSet<Borrowing> Borrowings { get; set; }
+        public virtual DbSet<Review> Reviews { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
+        public virtual DbSet<UserSetting> UserSettings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>(entity =>
+            // All explicit Fluent API configuration has been removed.
+            // EF Core will now use the clean definitions in your .cs model files 
+            // to generate the entire schema, including the new six tables 
+            // and all foreign key relationships.
+
+            modelBuilder.Entity<UserSetting>(entity =>
             {
-                entity.HasIndex(e => e.UserId, "UQ__Users__1788CC4D5F4A160F")
-                    .IsUnique();
+                entity.HasKey(e => e.SettingID);
 
-                entity.Property(e => e.CreatedBy)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CreatedTime).HasColumnType("datetime");
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Password)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.UpdatedBy)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.UpdatedTime).HasColumnType("datetime");
-
-                entity.Property(e => e.UserId)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                // Optional: Also define the one-to-one relationship to enforce the constraint
+                entity.HasOne(e => e.User)
+                    .WithOne(u => u.UserSetting)
+                    .HasForeignKey<UserSetting>(e => e.UserId);
             });
 
             OnModelCreatingPartial(modelBuilder);
