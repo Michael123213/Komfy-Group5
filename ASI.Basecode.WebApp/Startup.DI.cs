@@ -35,10 +35,17 @@ namespace ASI.Basecode.WebApp
             // Services
             this._services.TryAddSingleton<TokenValidationParametersFactory>();
             this._services.AddScoped<IUserService, UserService>();
-          
+            this._services.AddScoped<IBorrowingService, BorrowingService>();
+            this._services.AddScoped<IReviewService, ReviewService>();
+            this._services.AddScoped<INotificationService, NotificationService>();
+            this._services.AddScoped<IUserSettingService, UserSettingService>();
 
             // Repositories
             this._services.AddScoped<IUserRepository, UserRepository>();
+            this._services.AddScoped<IBorrowingRepository, BorrowingRepository>();
+            this._services.AddScoped<IReviewRepository, ReviewRepository>();
+            this._services.AddScoped<INotificationRepository, NotificationRepository>();
+            this._services.AddScoped<IUserSettingRepository, UserSettingRepository>();
 
             // Manager Class
             this._services.AddScoped<SignInManager>();

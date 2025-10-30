@@ -5,8 +5,12 @@ namespace ASI.Basecode.Data.Interfaces
 {
     public interface IUserSettingRepository
     {
-        UserSetting GetSettingsByUserId(string userId);
-        void AddUserSetting(UserSetting setting);
-        void UpdateUserSetting(UserSetting setting);
+        IQueryable<UserSetting> GetUserSettings();
+        UserSetting GetUserSettingById(int settingId);
+        UserSetting GetUserSettingByUserId(string userId);
+        void AddUserSetting(UserSetting userSetting);
+        void UpdateUserSetting(UserSetting userSetting);
+        void DeleteUserSetting(UserSetting userSetting);
+        bool UserHasSetting(string userId);
     }
 }

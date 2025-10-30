@@ -1,11 +1,8 @@
 ﻿using ASI.Basecode.Data.Interfaces;
 using ASI.Basecode.Data.Models;
 using Basecode.Data.Repositories;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace ASI.Basecode.Data.Repositories
 {
@@ -13,7 +10,6 @@ namespace ASI.Basecode.Data.Repositories
     {
         public UserRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-
         }
 
         public IQueryable<User> GetUsers()
@@ -21,10 +17,14 @@ namespace ASI.Basecode.Data.Repositories
             return this.GetDbSet<User>();
         }
 
-        public bool UserExists(string userId)
+        public User GetUserById(string userId)
         {
-            // ERROR FIXED: Changed 'x.UserI' to 'x.UserID'
-            return this.GetDbSet<User>().Any(x => x.UserId == userId);
+            return this.GetDbSet<User>().FirstOrDefault(u => u.UserId == userId);
+        }
+
+        public User GetUserByEmail(string email)
+        {
+            return this.GetDbSet<User>().FirstOrDefault(u => u.Email == email);
         }
 
         public void AddUser(User user)
@@ -33,5 +33,26 @@ namespace ASI.Basecode.Data.Repositories
             UnitOfWork.SaveChanges();
         }
 
+        public void UpdateUser(User user)
+        {
+            this.SetEntityState(user, EntityState.Modified);
+            UnitOfWork.SaveChanges();
+        }
+
+        public void DeleteUser(User user)
+        {
+            this.SetEntityState(user, EntityState.Deleted);
+            UnitOfWork.SaveChanges();
+        }
+
+        public bool UserExists(string userId)
+        {
+            return this.GetDbSet<User>().Any(x => x.UserId == userId);
+        }
+
+        public bool EmailExists(string email)
+        {
+            return this.GetDbSet<User>().Any(x => x.Email == email);
+        }
     }
 }

@@ -12,12 +12,34 @@ namespace ASI.Basecode.Data.Repositories
         {
         }
 
+        public IQueryable<Notification> GetNotifications()
+        {
+            return this.GetDbSet<Notification>()
+                .Include(n => n.User)
+                .OrderByDescending(n => n.Timestamp);
+        }
+
+        public Notification GetNotificationById(int notificationId)
+        {
+            return this.GetDbSet<Notification>()
+                .Include(n => n.User)
+                .FirstOrDefault(n => n.NotificationID == notificationId);
+        }
+
         public IQueryable<Notification> GetNotificationsByUserId(string userId)
         {
-            // Note: Include logic to order by timestamp descending for typical notification views
             return this.GetDbSet<Notification>()
-                       .Where(n => n.UserId == userId)
-                       .OrderByDescending(n => n.Timestamp);
+                .Include(n => n.User)
+                .Where(n => n.UserId == userId)
+                .OrderByDescending(n => n.Timestamp);
+        }
+
+        public IQueryable<Notification> GetUnreadNotificationsByUserId(string userId)
+        {
+            return this.GetDbSet<Notification>()
+                .Include(n => n.User)
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .OrderByDescending(n => n.Timestamp);
         }
 
         public void AddNotification(Notification notification)
@@ -26,11 +48,41 @@ namespace ASI.Basecode.Data.Repositories
             UnitOfWork.SaveChanges();
         }
 
-        public void MarkAsRead(Notification notification)
+        public void UpdateNotification(Notification notification)
         {
-            // Assuming you retrieve the entity first, then mark it as modified.
-            // If the entity is attached, simply setting the property and saving changes works.
             this.SetEntityState(notification, EntityState.Modified);
+            UnitOfWork.SaveChanges();
+        }
+
+        public void DeleteNotification(Notification notification)
+        {
+            this.SetEntityState(notification, EntityState.Deleted);
+            UnitOfWork.SaveChanges();
+        }
+
+        public void MarkAsRead(int notificationId)
+        {
+            var notification = GetNotificationById(notificationId);
+            if (notification != null)
+            {
+                notification.IsRead = true;
+                this.SetEntityState(notification, EntityState.Modified);
+                UnitOfWork.SaveChanges();
+            }
+        }
+
+        public void MarkAllAsReadForUser(string userId)
+        {
+            var notifications = this.GetDbSet<Notification>()
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToList();
+
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = true;
+                this.SetEntityState(notification, EntityState.Modified);
+            }
+
             UnitOfWork.SaveChanges();
         }
     }

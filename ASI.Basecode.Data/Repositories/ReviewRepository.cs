@@ -14,17 +14,33 @@ namespace ASI.Basecode.Data.Repositories
 
         public IQueryable<Review> GetReviews()
         {
-            return this.GetDbSet<Review>();
-        }
-
-        public IQueryable<Review> GetReviewsByBookId(int bookId)
-        {
-            return this.GetDbSet<Review>().Where(r => r.BookID == bookId);
+            return this.GetDbSet<Review>()
+                .Include(r => r.User)
+                .Include(r => r.Book);
         }
 
         public Review GetReviewById(int reviewId)
         {
-            return this.GetDbSet<Review>().FirstOrDefault(r => r.ReviewID == reviewId);
+            return this.GetDbSet<Review>()
+                .Include(r => r.User)
+                .Include(r => r.Book)
+                .FirstOrDefault(r => r.ReviewID == reviewId);
+        }
+
+        public IQueryable<Review> GetReviewsByUserId(string userId)
+        {
+            return this.GetDbSet<Review>()
+                .Include(r => r.User)
+                .Include(r => r.Book)
+                .Where(r => r.UserId == userId);
+        }
+
+        public IQueryable<Review> GetReviewsByBookId(int bookId)
+        {
+            return this.GetDbSet<Review>()
+                .Include(r => r.User)
+                .Include(r => r.Book)
+                .Where(r => r.BookID == bookId);
         }
 
         public void AddReview(Review review)
@@ -33,10 +49,21 @@ namespace ASI.Basecode.Data.Repositories
             UnitOfWork.SaveChanges();
         }
 
+        public void UpdateReview(Review review)
+        {
+            this.SetEntityState(review, EntityState.Modified);
+            UnitOfWork.SaveChanges();
+        }
+
         public void DeleteReview(Review review)
         {
             this.SetEntityState(review, EntityState.Deleted);
             UnitOfWork.SaveChanges();
+        }
+
+        public bool UserHasReviewedBook(string userId, int bookId)
+        {
+            return this.GetDbSet<Review>().Any(r => r.UserId == userId && r.BookID == bookId);
         }
     }
 }
