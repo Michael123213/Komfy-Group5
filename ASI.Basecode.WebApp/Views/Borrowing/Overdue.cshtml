@@ -1,0 +1,69 @@
+@model List<ASI.Basecode.Services.ServiceModels.BorrowingModel>
+
+@{
+    ViewData["Title"] = "Overdue Borrowings";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa-solid fa-exclamation-triangle text-danger"></i> Overdue Borrowings</h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> All Borrowings
+        </a>
+    </div>
+
+    <div class="card border-danger">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-danger">
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Book</th>
+                            <th>Due Date</th>
+                            <th>Days Overdue</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var borrowing in Model)
+                            {
+                                var daysOverdue = Math.Abs((borrowing.DueDate - DateTime.Now).Days);
+                                <tr>
+                                    <td>@borrowing.BorrowingID</td>
+                                    <td>
+                                        @borrowing.UserName<br/>
+                                        <small class="text-muted">@borrowing.UserEmail</small>
+                                    </td>
+                                    <td>@borrowing.BookTitle</td>
+                                    <td>@borrowing.DueDate.ToString("MMM dd, yyyy")</td>
+                                    <td class="text-danger fw-bold">@daysOverdue days</td>
+                                    <td>
+                                        <form asp-action="Return" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@borrowing.BorrowingID" />
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="fa-solid fa-check"></i> Return
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-success">
+                                    <i class="fa-solid fa-check-circle"></i> No overdue borrowings! Great job!
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

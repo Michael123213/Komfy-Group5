@@ -1,0 +1,115 @@
+@model List<ASI.Basecode.Services.ServiceModels.BorrowingModel>
+
+@{
+    ViewData["Title"] = "Borrowings";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa-solid fa-book-open-reader"></i> Borrowing Management</h2>
+        <div>
+            <a asp-action="Active" class="btn btn-success me-2">
+                <i class="fa-solid fa-check-circle"></i> Active Borrowings
+            </a>
+            <a asp-action="Overdue" class="btn btn-danger me-2">
+                <i class="fa-solid fa-exclamation-triangle"></i> Overdue
+            </a>
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> New Borrowing
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Book</th>
+                            <th>Borrow Date</th>
+                            <th>Due Date</th>
+                            <th>Return Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var borrowing in Model)
+                            {
+                                var statusBadge = borrowing.Status switch
+                                {
+                                    "Active" => "bg-success",
+                                    "Returned" => "bg-secondary",
+                                    "Overdue" => "bg-danger",
+                                    _ => "bg-primary"
+                                };
+                                <tr>
+                                    <td>@borrowing.BorrowingID</td>
+                                    <td>
+                                        @borrowing.UserName<br/>
+                                        <small class="text-muted">@borrowing.UserEmail</small>
+                                    </td>
+                                    <td>
+                                        @borrowing.BookTitle<br/>
+                                        <small class="text-muted">Code: @borrowing.BookCode</small>
+                                    </td>
+                                    <td>@borrowing.BorrowDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@borrowing.DueDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@(borrowing.ReturnDate?.ToString("MMM dd, yyyy") ?? "Not returned")</td>
+                                    <td><span class="badge @statusBadge">@borrowing.Status</span></td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@borrowing.BorrowingID" class="btn btn-sm btn-info" title="View Details">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                            @if (borrowing.Status == "Active" || borrowing.Status == "Overdue")
+                                            {
+                                                <form asp-action="Return" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@borrowing.BorrowingID" />
+                                                    <button type="submit" class="btn btn-sm btn-success" title="Return Book">
+                                                        <i class="fa-solid fa-check"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            <a asp-action="Edit" asp-route-id="@borrowing.BorrowingID" class="btn btn-sm btn-warning" title="Edit">
+                                                <i class="fa-solid fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center">No borrowings found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+@model List<ASI.Basecode.Services.ServiceModels.BorrowingModel>
+
+@{
+    ViewData["Title"] = "Active Borrowings";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa-solid fa-check-circle text-success"></i> Active Borrowings</h2>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> All Borrowings
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-success">
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Book</th>
+                            <th>Borrow Date</th>
+                            <th>Due Date</th>
+                            <th>Days Remaining</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var borrowing in Model)
+                            {
+                                var daysRemaining = (borrowing.DueDate - DateTime.Now).Days;
+                                var daysClass = daysRemaining < 0 ? "text-danger" : daysRemaining <= 3 ? "text-warning" : "text-success";
+                                <tr>
+                                    <td>@borrowing.BorrowingID</td>
+                                    <td>@borrowing.UserName</td>
+                                    <td>@borrowing.BookTitle</td>
+                                    <td>@borrowing.BorrowDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@borrowing.DueDate.ToString("MMM dd, yyyy")</td>
+                                    <td class="@daysClass fw-bold">@daysRemaining days</td>
+                                    <td>
+                                        <form asp-action="Return" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@borrowing.BorrowingID" />
+                                            <button type="submit" class="btn btn-sm btn-success" title="Return Book">
+                                                <i class="fa-solid fa-check"></i> Return
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">No active borrowings found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

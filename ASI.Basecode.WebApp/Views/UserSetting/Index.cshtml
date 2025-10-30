@@ -1,0 +1,72 @@
+@model List<ASI.Basecode.Services.ServiceModels.UserSettingModel>
+
+@{
+    ViewData["Title"] = "User Settings";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa-solid fa-gear"></i> User Settings</h2>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Setting ID</th>
+                            <th>User</th>
+                            <th>Theme</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var setting in Model)
+                            {
+                                <tr>
+                                    <td>@setting.SettingID</td>
+                                    <td>
+                                        @setting.UserName<br/>
+                                        <small class="text-muted">@setting.UserEmail</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@(setting.Theme == "Light" ? "warning" : "dark")">
+                                            @setting.Theme
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit" asp-route-id="@setting.SettingID" class="btn btn-sm btn-warning">
+                                                <i class="fa-solid fa-edit"></i> Edit
+                                            </a>
+                                            <a asp-action="UserSettings" asp-route-userId="@setting.UserId" class="btn btn-sm btn-info">
+                                                <i class="fa-solid fa-eye"></i> View
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center">No user settings found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

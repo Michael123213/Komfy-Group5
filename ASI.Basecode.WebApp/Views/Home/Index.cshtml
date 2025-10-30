@@ -1,8 +1,124 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="jumbotron bg-light p-5 rounded">
+                <h1 class="display-4">
+                    <i class="fa-solid fa-book-open"></i> Welcome to Komfy Library
+                </h1>
+                <p class="lead">Library Management System - Manage your books, borrowings, reviews, and more!</p>
+                <hr class="my-4">
+                <p>Navigate through the menu to access different features of the system.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-book fa-3x mb-3"></i>
+                    <h5 class="card-title">Books</h5>
+                    <p class="card-text">Manage your library's book collection</p>
+                    <a asp-controller="Book" asp-action="Index" class="btn btn-light">View Books</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-success">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-book-open-reader fa-3x mb-3"></i>
+                    <h5 class="card-title">Borrowings</h5>
+                    <p class="card-text">Track book borrowings and returns</p>
+                    <a asp-controller="Borrowing" asp-action="Index" class="btn btn-light">View Borrowings</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-star fa-3x mb-3"></i>
+                    <h5 class="card-title">Reviews</h5>
+                    <p class="card-text">Read and write book reviews</p>
+                    <a asp-controller="Review" asp-action="Index" class="btn btn-light">View Reviews</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-danger">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-users fa-3x mb-3"></i>
+                    <h5 class="card-title">Users</h5>
+                    <p class="card-text">Manage library members and admins</p>
+                    <a asp-controller="User" asp-action="Index" class="btn btn-light">View Users</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-info">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-bell fa-3x mb-3"></i>
+                    <h5 class="card-title">Notifications</h5>
+                    <p class="card-text">View system notifications</p>
+                    <a asp-controller="Notification" asp-action="Index" class="btn btn-light">View Notifications</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-secondary">
+                <div class="card-body text-center">
+                    <i class="fa-solid fa-gear fa-3x mb-3"></i>
+                    <h5 class="card-title">Settings</h5>
+                    <p class="card-text">Customize your preferences</p>
+                    <a asp-controller="UserSetting" asp-action="Index" class="btn btn-light">View Settings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5><i class="fa-solid fa-chart-line"></i> Quick Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h3 class="text-primary">
+                                <i class="fa-solid fa-book"></i>
+                            </h3>
+                            <p class="text-muted">Total Books</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-success">
+                                <i class="fa-solid fa-book-open-reader"></i>
+                            </h3>
+                            <p class="text-muted">Active Borrowings</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-warning">
+                                <i class="fa-solid fa-users"></i>
+                            </h3>
+                            <p class="text-muted">Total Members</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-danger">
+                                <i class="fa-solid fa-exclamation-triangle"></i>
+                            </h3>
+                            <p class="text-muted">Overdue Books</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
