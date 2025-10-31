@@ -35,13 +35,18 @@ namespace ASI.Basecode.WebApp
             // Services
             this._services.TryAddSingleton<TokenValidationParametersFactory>();
             this._services.AddScoped<IUserService, UserService>();
+            this._services.AddScoped<IBookService, BookService>();
             this._services.AddScoped<IBorrowingService, BorrowingService>();
             this._services.AddScoped<IReviewService, ReviewService>();
             this._services.AddScoped<INotificationService, NotificationService>();
             this._services.AddScoped<IUserSettingService, UserSettingService>();
+            this._services.AddScoped<IAnalyticsService, AnalyticsService>(); // ADVANCED FEATURE #1
+            this._services.AddScoped<IReportingService, ReportingService>(); // ADVANCED FEATURE #2
+            this._services.AddScoped<IRecommendationService, RecommendationService>(); // ADVANCED FEATURE #4
 
             // Repositories
             this._services.AddScoped<IUserRepository, UserRepository>();
+            this._services.AddScoped<IBookRepository, BookRepository>();
             this._services.AddScoped<IBorrowingRepository, BorrowingRepository>();
             this._services.AddScoped<IReviewRepository, ReviewRepository>();
             this._services.AddScoped<INotificationRepository, NotificationRepository>();

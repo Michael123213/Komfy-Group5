@@ -234,5 +234,107 @@ namespace ASI.Basecode.Services.Services
 
             _repository.UpdateUser(userEntity);
         }
+
+        // CRITICAL FEATURE #1: Generate Password Reset Token
+        public string GeneratePasswordResetToken(string email)
+        {
+            var userEntity = _repository.GetUserByEmail(email);
+
+            if (userEntity == null)
+            {
+                throw new KeyNotFoundException($"No user found with email {email}.");
+            }
+
+            // Generate a unique token (GUID)
+            var token = Guid.NewGuid().ToString();
+
+            // Set token and expiry (valid for 1 hour)
+            userEntity.PasswordResetToken = token;
+            userEntity.PasswordResetTokenExpiry = DateTime.Now.AddHours(1);
+
+            _repository.UpdateUser(userEntity);
+
+            return token;
+        }
+
+        // CRITICAL FEATURE #1: Validate Password Reset Token
+        public bool ValidatePasswordResetToken(string token)
+        {
+            var userEntity = _repository.GetUserByPasswordResetToken(token);
+            return userEntity != null;
+        }
+
+        // CRITICAL FEATURE #1: Reset Password
+        public void ResetPassword(string token, string newPassword)
+        {
+            var userEntity = _repository.GetUserByPasswordResetToken(token);
+
+            if (userEntity == null)
+            {
+                throw new Exception("Invalid or expired password reset token.");
+            }
+
+            // Update password
+            userEntity.Password = PasswordManager.EncryptPassword(newPassword);
+
+            // Clear the reset token
+            userEntity.PasswordResetToken = null;
+            userEntity.PasswordResetTokenExpiry = null;
+
+            userEntity.UpdatedTime = DateTime.Now;
+            userEntity.UpdatedBy = System.Environment.UserName;
+
+            _repository.UpdateUser(userEntity);
+        }
+
+        // CRITICAL FEATURE #4: Update User Profile (Name, Email)
+        public void UpdateUserProfile(string userId, string name, string email)
+        {
+            var userEntity = _repository.GetUserById(userId);
+
+            if (userEntity == null)
+            {
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+            }
+
+            // Check if email is being changed and if it already exists for another user
+            if (userEntity.Email != email && _repository.EmailExists(email))
+            {
+                throw new Exception("Email already exists for another user.");
+            }
+
+            // Update profile fields
+            userEntity.Name = name;
+            userEntity.Email = email;
+            userEntity.UpdatedTime = DateTime.Now;
+            userEntity.UpdatedBy = System.Environment.UserName;
+
+            _repository.UpdateUser(userEntity);
+        }
+
+        // CRITICAL FEATURE #4: Change Password
+        public void ChangePassword(string userId, string currentPassword, string newPassword)
+        {
+            var userEntity = _repository.GetUserById(userId);
+
+            if (userEntity == null)
+            {
+                throw new KeyNotFoundException($"User with ID {userId} not found.");
+            }
+
+            // Verify current password
+            var encryptedCurrentPassword = PasswordManager.EncryptPassword(currentPassword);
+            if (userEntity.Password != encryptedCurrentPassword)
+            {
+                throw new Exception("Current password is incorrect.");
+            }
+
+            // Update to new password
+            userEntity.Password = PasswordManager.EncryptPassword(newPassword);
+            userEntity.UpdatedTime = DateTime.Now;
+            userEntity.UpdatedBy = System.Environment.UserName;
+
+            _repository.UpdateUser(userEntity);
+        }
     }
 }

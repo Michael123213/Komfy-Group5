@@ -15,6 +15,10 @@ namespace ASI.Basecode.Services.Interfaces
         List<BookModel> SearchBooks(string searchTerm);
         List<BookModel> FilterBooks(string genre = null, string author = null, string publisher = null);
 
+        // CRITICAL FEATURE #3: Advanced filter with date published and sorting
+        List<BookModel> FilterBooksAdvanced(string genre = null, string author = null, string publisher = null,
+                                           int? yearPublished = null, string sortBy = null);
+
         // CREATE operation
         void AddBook(BookModel model);
 
@@ -27,5 +31,10 @@ namespace ASI.Basecode.Services.Interfaces
         // ANALYTICS operations (QUICK WIN #5)
         void IncrementViewCount(int bookId);
         void IncrementBorrowCount(int bookId);
+
+        // ADVANCED FEATURE #3: Ebook Operations
+        List<BookModel> GetAllEbooks();
+        bool IsEbookAvailable(int bookId);
+        string GetEbookPath(int bookId);
     }
 }

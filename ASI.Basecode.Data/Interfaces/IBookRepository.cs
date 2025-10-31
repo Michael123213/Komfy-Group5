@@ -10,6 +10,11 @@ namespace ASI.Basecode.Data.Interfaces
         Book GetBookByCode(string bookCode);
         IQueryable<Book> SearchBooks(string searchTerm);
         IQueryable<Book> FilterBooks(string genre = null, string author = null, string publisher = null);
+
+        // CRITICAL FEATURE #3: Enhanced filters
+        IQueryable<Book> FilterBooksAdvanced(string genre = null, string author = null, string publisher = null,
+                                             int? yearPublished = null, string sortBy = null);
+
         void AddBook(Book book);
         void UpdateBook(Book book);
         void DeleteBook(Book book);

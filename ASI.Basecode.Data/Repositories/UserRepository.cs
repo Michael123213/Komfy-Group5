@@ -54,5 +54,13 @@ namespace ASI.Basecode.Data.Repositories
         {
             return this.GetDbSet<User>().Any(x => x.Email == email);
         }
+
+        // CRITICAL FEATURE #1: Password Reset
+        public User GetUserByPasswordResetToken(string token)
+        {
+            return this.GetDbSet<User>()
+                .FirstOrDefault(u => u.PasswordResetToken == token &&
+                                    u.PasswordResetTokenExpiry > System.DateTime.Now);
+        }
     }
 }

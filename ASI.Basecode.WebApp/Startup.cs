@@ -113,8 +113,8 @@ namespace ASI.Basecode.WebApp
 
             // DI Services
             // --- START: ADDED BOOK CRUD REGISTRATION ---
-            services.AddScoped<IBookRepository, BookRepository>();
-            services.AddScoped<IBookService, BookService>();
+            //            services.AddScoped<IBookRepository, BookRepository>();
+            //            services.AddScoped<IBookService, BookService>();
             // --- END: ADDED BOOK CRUD REGISTRATION ---
 
             this.ConfigureOtherServices();

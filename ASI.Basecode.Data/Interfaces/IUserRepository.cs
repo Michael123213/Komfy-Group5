@@ -13,5 +13,8 @@ namespace ASI.Basecode.Data.Interfaces
         void DeleteUser(User user);
         bool UserExists(string userId);
         bool EmailExists(string email);
+
+        // CRITICAL FEATURE #1: Password Reset
+        User GetUserByPasswordResetToken(string token);
     }
 }

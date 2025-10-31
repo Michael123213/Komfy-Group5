@@ -27,6 +27,36 @@ namespace ASI.Basecode.WebApp.Controllers
             return View(userSettings);
         }
 
+        // CRITICAL FEATURE #5: GET: /UserSetting/MySettings (Current user's settings)
+        public IActionResult MySettings()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "You must be logged in to view your settings.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var userSetting = _userSettingService.GetUserSettingByUserId(userId);
+            if (userSetting == null)
+            {
+                // If user doesn't have settings, create default ones
+                try
+                {
+                    _userSettingService.CreateDefaultSettingForUser(userId);
+                    userSetting = _userSettingService.GetUserSettingByUserId(userId);
+                }
+                catch (System.Exception ex)
+                {
+                    TempData["ErrorMessage"] = $"Error creating default settings: {ex.Message}";
+                    _logger.LogError(ex, "Error creating default settings for user.");
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            return View("UserSettings", userSetting);
+        }
+
         // GET: /UserSetting/Create (CREATE: Display form)
         public IActionResult Create()
         {

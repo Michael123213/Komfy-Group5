@@ -144,6 +144,18 @@ namespace ASI.Basecode.WebApp.Controllers
             return View("Index", books);
         }
 
+        // CRITICAL FEATURE #3: GET: /Book/FilterAdvanced?genre=Fiction&yearPublished=2020&sortBy=popularity
+        public IActionResult FilterAdvanced(string genre, string author, string publisher, int? yearPublished, string sortBy)
+        {
+            var books = _bookService.FilterBooksAdvanced(genre, author, publisher, yearPublished, sortBy);
+            ViewBag.Genre = genre;
+            ViewBag.Author = author;
+            ViewBag.Publisher = publisher;
+            ViewBag.YearPublished = yearPublished;
+            ViewBag.SortBy = sortBy;
+            return View("Index", books);
+        }
+
         // GET: /Book/Details/5 (READ: View book details with reviews and ratings)
         public IActionResult Details(int id)
         {
@@ -157,6 +169,76 @@ namespace ASI.Basecode.WebApp.Controllers
             _bookService.IncrementViewCount(id);
 
             return View(book);
+        }
+
+        // ADVANCED FEATURE #3: GET: /Book/Ebooks (List all ebooks)
+        public IActionResult Ebooks()
+        {
+            var ebooks = _bookService.GetAllEbooks();
+            return View(ebooks);
+        }
+
+        // ADVANCED FEATURE #3: GET: /Book/ViewEbook/5 (View ebook in browser)
+        public IActionResult ViewEbook(int id)
+        {
+            try
+            {
+                var book = _bookService.GetBookDetails(id);
+                if (book == null)
+                {
+                    return NotFound();
+                }
+
+                if (!_bookService.IsEbookAvailable(id))
+                {
+                    TempData["ErrorMessage"] = "This book is not available as an ebook.";
+                    return RedirectToAction("Details", new { id });
+                }
+
+                // Increment view count
+                _bookService.IncrementViewCount(id);
+
+                ViewBag.EbookPath = book.EbookPath;
+                return View(book);
+            }
+            catch (System.Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error loading ebook.";
+                _logger.LogError(ex, "Error loading ebook.");
+                return RedirectToAction("Index");
+            }
+        }
+
+        // ADVANCED FEATURE #3: GET: /Book/DownloadEbook/5 (Download ebook file)
+        public IActionResult DownloadEbook(int id)
+        {
+            try
+            {
+                var book = _bookService.GetBookDetails(id);
+                if (book == null)
+                {
+                    return NotFound();
+                }
+
+                if (!_bookService.IsEbookAvailable(id))
+                {
+                    TempData["ErrorMessage"] = "This book is not available as an ebook.";
+                    return RedirectToAction("Details", new { id });
+                }
+
+                var ebookPath = _bookService.GetEbookPath(id);
+
+                // In production, you would read the file from the filesystem
+                // For now, return a placeholder response
+                TempData["SuccessMessage"] = $"Ebook download initiated for: {book.Title}";
+                return RedirectToAction("Details", new { id });
+            }
+            catch (System.Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error downloading ebook.";
+                _logger.LogError(ex, "Error downloading ebook.");
+                return RedirectToAction("Details", new { id });
+            }
         }
     }
 }

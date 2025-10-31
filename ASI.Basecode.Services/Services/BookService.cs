@@ -5,7 +5,7 @@ using ASI.Basecode.Services.ServiceModels;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ASI.Basecode.Services
+namespace ASI.Basecode.Services.Services
 {
     public class BookService : IBookService
     {
@@ -245,6 +245,33 @@ namespace ASI.Basecode.Services
             }).ToList();
         }
 
+        // CRITICAL FEATURE #3: Advanced Filter with Date Published and Sorting
+        public List<BookModel> FilterBooksAdvanced(string genre = null, string author = null, string publisher = null,
+                                                   int? yearPublished = null, string sortBy = null)
+        {
+            var books = _bookRepository.FilterBooksAdvanced(genre, author, publisher, yearPublished, sortBy).ToList();
+
+            return books.Select(b => new BookModel
+            {
+                BookID = b.BookID,
+                Title = b.Title,
+                BookCode = b.BookCode,
+                Genre = b.Genre,
+                Author = b.Author,
+                Publisher = b.Publisher,
+                Status = b.Status,
+                DatePublished = b.DatePublished,
+                Description = b.Description,
+                CoverImagePath = b.CoverImagePath,
+                IsEbook = b.IsEbook,
+                EbookPath = b.EbookPath,
+                ViewCount = b.ViewCount,
+                BorrowCount = b.BorrowCount,
+                AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0,
+                ReviewCount = b.Reviews.Count
+            }).ToList();
+        }
+
         // QUICK WIN #5: Analytics Operations
         public void IncrementViewCount(int bookId)
         {
@@ -254,6 +281,52 @@ namespace ASI.Basecode.Services
         public void IncrementBorrowCount(int bookId)
         {
             _bookRepository.IncrementBorrowCount(bookId);
+        }
+
+        // ADVANCED FEATURE #3: Get All Ebooks
+        public List<BookModel> GetAllEbooks()
+        {
+            var ebooks = _bookRepository.GetBooks()
+                .Where(b => b.IsEbook && !string.IsNullOrEmpty(b.EbookPath))
+                .ToList();
+
+            return ebooks.Select(b => new BookModel
+            {
+                BookID = b.BookID,
+                Title = b.Title,
+                BookCode = b.BookCode,
+                Genre = b.Genre,
+                Author = b.Author,
+                Publisher = b.Publisher,
+                Status = b.Status,
+                DatePublished = b.DatePublished,
+                Description = b.Description,
+                CoverImagePath = b.CoverImagePath,
+                IsEbook = b.IsEbook,
+                EbookPath = b.EbookPath,
+                ViewCount = b.ViewCount,
+                BorrowCount = b.BorrowCount,
+                AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0,
+                ReviewCount = b.Reviews.Count
+            }).ToList();
+        }
+
+        // ADVANCED FEATURE #3: Check if Ebook is Available
+        public bool IsEbookAvailable(int bookId)
+        {
+            var book = _bookRepository.GetBookById(bookId);
+            return book != null && book.IsEbook && !string.IsNullOrEmpty(book.EbookPath);
+        }
+
+        // ADVANCED FEATURE #3: Get Ebook File Path
+        public string GetEbookPath(int bookId)
+        {
+            var book = _bookRepository.GetBookById(bookId);
+            if (book == null || !book.IsEbook || string.IsNullOrEmpty(book.EbookPath))
+            {
+                throw new KeyNotFoundException($"Ebook not found for book ID {bookId}.");
+            }
+            return book.EbookPath;
         }
     }
 }

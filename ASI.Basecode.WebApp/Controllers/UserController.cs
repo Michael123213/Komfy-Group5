@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
-    [AllowAnonymous] // Temporarily allow access to all users for development
+    [Authorize(Roles = "Admin")] // Only admins can access user management
     public class UserController : Controller
     {
         private readonly ILogger<UserController> _logger;
@@ -133,6 +133,7 @@ namespace ASI.Basecode.WebApp.Controllers
         // QUICK WIN #4: POST: /User/GrantAdmin/{id} (UPDATE: Grant admin access)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")] // Only admins can grant admin access
         public IActionResult GrantAdmin(string id)
         {
             try
@@ -154,6 +155,7 @@ namespace ASI.Basecode.WebApp.Controllers
         // QUICK WIN #4: POST: /User/RevokeAdmin/{id} (UPDATE: Revoke admin access)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")] // Only admins can revoke admin access
         public IActionResult RevokeAdmin(string id)
         {
             try

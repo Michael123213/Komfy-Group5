@@ -78,6 +78,77 @@ namespace ASI.Basecode.Data.Repositories
             return query;
         }
 
+        // CRITICAL FEATURE #3: Advanced Filter with Date Published and Sorting
+        public IQueryable<Book> FilterBooksAdvanced(string genre = null, string author = null, string publisher = null,
+                                                     int? yearPublished = null, string sortBy = null)
+        {
+            var query = this.GetDbSet<Book>()
+                .Include(b => b.Reviews)
+                .Include(b => b.Borrowings)
+                .AsQueryable();
+
+            // Apply filters
+            if (!string.IsNullOrEmpty(genre))
+            {
+                query = query.Where(b => b.Genre.ToLower() == genre.ToLower());
+            }
+
+            if (!string.IsNullOrEmpty(author))
+            {
+                query = query.Where(b => b.Author.ToLower().Contains(author.ToLower()));
+            }
+
+            if (!string.IsNullOrEmpty(publisher))
+            {
+                query = query.Where(b => b.Publisher.ToLower().Contains(publisher.ToLower()));
+            }
+
+            // CRITICAL FEATURE #3: Filter by year published
+            if (yearPublished.HasValue)
+            {
+                query = query.Where(b => b.DatePublished.HasValue && b.DatePublished.Value.Year == yearPublished.Value);
+            }
+
+            // CRITICAL FEATURE #3: Sort by popularity or other criteria
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "popularity":
+                    case "mostborrowed":
+                        query = query.OrderByDescending(b => b.BorrowCount);
+                        break;
+                    case "mostviewed":
+                        query = query.OrderByDescending(b => b.ViewCount);
+                        break;
+                    case "rating":
+                    case "toprated":
+                        query = query.OrderByDescending(b => b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0);
+                        break;
+                    case "newest":
+                        query = query.OrderByDescending(b => b.DatePublished);
+                        break;
+                    case "oldest":
+                        query = query.OrderBy(b => b.DatePublished);
+                        break;
+                    case "title":
+                        query = query.OrderBy(b => b.Title);
+                        break;
+                    default:
+                        // Default sorting by title
+                        query = query.OrderBy(b => b.Title);
+                        break;
+                }
+            }
+            else
+            {
+                // Default sorting
+                query = query.OrderBy(b => b.Title);
+            }
+
+            return query;
+        }
+
         public void AddBook(Book book)
         {
             this.GetDbSet<Book>().Add(book);

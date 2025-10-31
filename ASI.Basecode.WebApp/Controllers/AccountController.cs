@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using static ASI.Basecode.Resources.Constants.Enums;
@@ -83,31 +84,29 @@ namespace ASI.Basecode.WebApp.Controllers
         {
             this._session.SetString("HasSession", "Exist");
 
-            //User user = null;
+            User user = null;
 
-            // FIX: Removed 'Id = 0' and ensured the Primary Key 'UserId' is a string
-            User user = new() { UserId = "0", Name = "Name", Password = "Password" };
-
-            await this._signInManager.SignInAsync(user);
-            this._session.SetString("UserName", model.UserId);
-
-            return RedirectToAction("Index", "Home");
-
-            /*var loginResult = _userService.AuthenticateUser(model.UserId, model.Password, ref user);
+            var loginResult = _userService.AuthenticateUser(model.UserId, model.Password, ref user);
             if (loginResult == LoginResult.Success)
             {
-                // 認証OK
+                // Authentication successful
                 await this._signInManager.SignInAsync(user);
                 this._session.SetString("UserName", user.Name);
+
+                // Redirect to returnUrl if valid, otherwise to Home
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
                 return RedirectToAction("Index", "Home");
             }
             else
             {
-                // 認証NG
+                // Authentication failed
                 TempData["ErrorMessage"] = "Incorrect UserId or Password";
                 return View();
             }
-            return View();*/
         }
 
         [HttpGet]
@@ -145,7 +144,223 @@ namespace ASI.Basecode.WebApp.Controllers
         public async Task<IActionResult> SignOutUser()
         {
             await this._signInManager.SignOutAsync();
+            this._sessionManager.Clear();
             return RedirectToAction("Login", "Account");
+        }
+
+        /// <summary>
+        /// Logout - User-friendly logout endpoint (supports both GET and POST)
+        /// </summary>
+        /// <returns>Redirect to login page</returns>
+        public async Task<IActionResult> Logout()
+        {
+            await this._signInManager.SignOutAsync();
+            this._sessionManager.Clear();
+            TempData["SuccessMessage"] = "You have been logged out successfully.";
+            return RedirectToAction("Login", "Account");
+        }
+
+        /// <summary>
+        /// Access Denied - Show when user doesn't have permission
+        /// </summary>
+        /// <returns>Access denied view</returns>
+        [HttpGet]
+        public IActionResult AccessDenied(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        // CRITICAL FEATURE #1: Forgot Password - Display form
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        // CRITICAL FEATURE #1: Forgot Password - Process form
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult ForgotPassword(string email)
+        {
+            try
+            {
+                var token = _userService.GeneratePasswordResetToken(email);
+
+                // In production, you would send an email with a link like:
+                // https://yoursite.com/Account/ResetPassword?token={token}
+                // For now, we'll display the token in TempData for testing
+                TempData["SuccessMessage"] = $"Password reset token generated. Token: {token}";
+                TempData["ResetToken"] = token;
+
+                return View("ForgotPasswordConfirmation");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "An error occurred. Please try again.";
+                _logger.LogError(ex, "Error generating password reset token.");
+                return View();
+            }
+        }
+
+        // CRITICAL FEATURE #1: Reset Password - Display form
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["ErrorMessage"] = "Invalid password reset link.";
+                return RedirectToAction("Login");
+            }
+
+            // Validate token
+            if (!_userService.ValidatePasswordResetToken(token))
+            {
+                TempData["ErrorMessage"] = "Invalid or expired password reset token.";
+                return RedirectToAction("Login");
+            }
+
+            ViewBag.Token = token;
+            return View();
+        }
+
+        // CRITICAL FEATURE #1: Reset Password - Process form
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult ResetPassword(string token, string newPassword, string confirmPassword)
+        {
+            if (string.IsNullOrEmpty(newPassword))
+            {
+                TempData["ErrorMessage"] = "Password is required.";
+                ViewBag.Token = token;
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["ErrorMessage"] = "Passwords do not match.";
+                ViewBag.Token = token;
+                return View();
+            }
+
+            try
+            {
+                _userService.ResetPassword(token, newPassword);
+                TempData["SuccessMessage"] = "Password reset successfully. Please login with your new password.";
+                return RedirectToAction("Login");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                _logger.LogError(ex, "Error resetting password.");
+                ViewBag.Token = token;
+                return View();
+            }
+        }
+
+        // CRITICAL FEATURE #4: Edit Profile - Display form
+        [HttpGet]
+        public IActionResult EditProfile()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "You must be logged in to edit your profile.";
+                return RedirectToAction("Login");
+            }
+
+            var user = _userService.GetUserDetails(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return View(user);
+        }
+
+        // CRITICAL FEATURE #4: Edit Profile - Process form
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditProfile(string name, string email)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "You must be logged in to edit your profile.";
+                return RedirectToAction("Login");
+            }
+
+            try
+            {
+                _userService.UpdateUserProfile(userId, name, email);
+                TempData["SuccessMessage"] = "Profile updated successfully.";
+                return RedirectToAction("EditProfile");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                _logger.LogError(ex, "Error updating profile.");
+
+                var user = _userService.GetUserDetails(userId);
+                return View(user);
+            }
+        }
+
+        // CRITICAL FEATURE #4: Change Password - Display form
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        // CRITICAL FEATURE #4: Change Password - Process form
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "You must be logged in to change your password.";
+                return RedirectToAction("Login");
+            }
+
+            if (string.IsNullOrEmpty(newPassword))
+            {
+                TempData["ErrorMessage"] = "New password is required.";
+                return View();
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["ErrorMessage"] = "New password and confirmation do not match.";
+                return View();
+            }
+
+            try
+            {
+                _userService.ChangePassword(userId, currentPassword, newPassword);
+                TempData["SuccessMessage"] = "Password changed successfully.";
+                return RedirectToAction("EditProfile");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                _logger.LogError(ex, "Error changing password.");
+                return View();
+            }
         }
     }
 }

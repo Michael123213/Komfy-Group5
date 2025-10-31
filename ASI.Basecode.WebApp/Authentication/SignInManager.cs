@@ -85,6 +85,7 @@ namespace ASI.Basecode.WebApp.Authentication
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId, ClaimValueTypes.String, Const.Issuer),
                 new Claim(ClaimTypes.Name, user.Name, ClaimValueTypes.String, Const.Issuer),
+                new Claim(ClaimTypes.Role, user.Role ?? "Member", ClaimValueTypes.String, Const.Issuer), // Add Role claim for authorization (default to Member if null)
 
                 new Claim("UserId", user.UserId, ClaimValueTypes.String, Const.Issuer),
                 new Claim("UserName", user.Name, ClaimValueTypes.String, Const.Issuer),

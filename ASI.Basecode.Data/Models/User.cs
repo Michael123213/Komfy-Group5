@@ -15,6 +15,10 @@ namespace ASI.Basecode.Data.Models
         public string Password { get; set; }
         public string Role { get; set; } // e.g., 'Admin' or 'Member'
 
+        // Password Reset Fields (CRITICAL FEATURE #1)
+        public string PasswordResetToken { get; set; }
+        public DateTime? PasswordResetTokenExpiry { get; set; }
+
         // Audit Fields (Retaining the existing ones)
         public string CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }
