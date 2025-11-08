@@ -1,4 +1,4 @@
-﻿@model List<ASI.Basecode.Services.ServiceModels.BookModel>
+@model List<ASI.Basecode.Services.ServiceModels.BookModel>
 
 @{
     ViewData["Title"] = "Book Management";
@@ -106,8 +106,69 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Review Form (Collapsible) -->
+                            <div class="collapse mt-4" id="reviewForm-@item.BookID">
+                                <div class="card card-body bg-light">
+                                    <h6 class="font-semibold text-gray-700 mb-3">Submit Your Review</h6>
+                                    <form asp-controller="Review" asp-action="Create" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="BookID" value="@item.BookID" />
+
+                                        <!-- Star Rating -->
+                                        <div class="form-group mb-3">
+                                            <label class="text-sm font-semibold text-gray-600">Rating <span class="text-red-500">*</span></label>
+                                            <div class="star-rating">
+                                                <input type="radio" id="star5-@item.BookID" name="Rating" value="5" required />
+                                                <label for="star5-@item.BookID" title="5 stars">
+                                                    <i class="fa-solid fa-star"></i>
+                                                </label>
+
+                                                <input type="radio" id="star4-@item.BookID" name="Rating" value="4" />
+                                                <label for="star4-@item.BookID" title="4 stars">
+                                                    <i class="fa-solid fa-star"></i>
+                                                </label>
+
+                                                <input type="radio" id="star3-@item.BookID" name="Rating" value="3" />
+                                                <label for="star3-@item.BookID" title="3 stars">
+                                                    <i class="fa-solid fa-star"></i>
+                                                </label>
+
+                                                <input type="radio" id="star2-@item.BookID" name="Rating" value="2" />
+                                                <label for="star2-@item.BookID" title="2 stars">
+                                                    <i class="fa-solid fa-star"></i>
+                                                </label>
+
+                                                <input type="radio" id="star1-@item.BookID" name="Rating" value="1" />
+                                                <label for="star1-@item.BookID" title="1 star">
+                                                    <i class="fa-solid fa-star"></i>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Comment (Optional) -->
+                                        <div class="form-group mb-3">
+                                            <label class="text-sm font-semibold text-gray-600">Your Review (Optional)</label>
+                                            <textarea name="Comment" rows="4" class="form-control" placeholder="Share your thoughts about this book..." maxlength="1000"></textarea>
+                                            <small class="text-gray-500">Maximum 1000 characters</small>
+                                        </div>
+
+                                        <!-- Submit Button -->
+                                        <div class="text-right">
+                                            <button type="submit" class="btn btn-warning">
+                                                <i class="fa-solid fa-paper-plane mr-2"></i>Submit Review
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
+                            <!-- Review Button/Form -->
+                            <button type="button" class="btn btn-warning" data-toggle="collapse" data-target="#reviewForm-@item.BookID">
+                                <i class="fa-solid fa-star mr-2"></i>Write a Review
+                            </button>
+
                             @if (item.Status == "Available")
                             {
                                 <form asp-controller="Borrowing" asp-action="BorrowBook" asp-route-bookId="@item.BookID" method="post" onsubmit="return confirm('Borrow this book for 14 days?');" class="d-inline">
@@ -131,7 +192,7 @@
                                 <button type="submit" class="btn btn-danger">
                                     <i class="fa-solid fa-trash mr-2"></i>Delete
                                 </button>
-                            </form>
+            </form>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
                     </div>
@@ -151,3 +212,34 @@
         </div>
     }
 </div>
+
+<style>
+    /* Star Rating Styles */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    .star-rating input[type="radio"] {
+        display: none;
+    }
+
+    .star-rating label {
+        cursor: pointer;
+        font-size: 2rem;
+        color: #ddd;
+        transition: color 0.2s;
+    }
+
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input[type="radio"]:checked ~ label {
+        color: #ffc107;
+    }
+
+    .star-rating input[type="radio"]:checked + label {
+        color: #ffc107;
+    }
+</style>

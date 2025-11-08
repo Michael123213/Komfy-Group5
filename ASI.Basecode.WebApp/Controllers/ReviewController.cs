@@ -38,22 +38,40 @@ namespace ASI.Basecode.WebApp.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(ReviewModel model)
         {
+            // Set UserId from authenticated user
+            if (User.Identity.IsAuthenticated)
+            {
+                model.UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                // Remove UserId from ModelState since we're setting it programmatically
+                ModelState.Remove("UserId");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "You must be logged in to submit a review.";
+                return RedirectToAction("Index", "Book");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     _reviewService.AddReview(model);
                     TempData["SuccessMessage"] = "Review added successfully.";
-                    return RedirectToAction(nameof(Index));
+
+                    // Redirect back to Books page
+                    return RedirectToAction("Index", "Book");
                 }
                 catch (System.Exception ex)
                 {
                     // Add model error if business logic fails
-                    ModelState.AddModelError(string.Empty, $"Error adding review: {ex.Message}");
+                    TempData["ErrorMessage"] = $"Error adding review: {ex.Message}";
                     _logger.LogError(ex, "Error adding review.");
+                    return RedirectToAction("Index", "Book");
                 }
             }
-            return View(model);
+
+            TempData["ErrorMessage"] = "Please provide a valid rating for your review.";
+            return RedirectToAction("Index", "Book");
         }
 
         // GET: /Review/Edit/{id} (UPDATE: Display form with existing data)
