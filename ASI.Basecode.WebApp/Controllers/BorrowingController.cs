@@ -24,7 +24,27 @@ namespace ASI.Basecode.WebApp.Controllers
         // GET: /Borrowing/Index (READ: List all borrowings)
         public IActionResult Index()
         {
-            var borrowings = _borrowingService.GetAllBorrowings();
+            List<BorrowingModel> borrowings;
+
+            // If user is Admin, show all borrowings; otherwise show only their own
+            if (User.IsInRole("Admin"))
+            {
+                borrowings = _borrowingService.GetAllBorrowings();
+            }
+            else
+            {
+                // Get current logged-in user's ID from claims
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    TempData["ErrorMessage"] = "You must be logged in to view borrowings.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                borrowings = _borrowingService.GetBorrowingsByUserId(userId);
+            }
+
             return View(borrowings);
         }
 

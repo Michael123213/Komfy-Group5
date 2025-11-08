@@ -23,7 +23,27 @@ namespace ASI.Basecode.WebApp.Controllers
         // GET: /Review/Index (READ: List all reviews)
         public IActionResult Index()
         {
-            var reviews = _reviewService.GetAllReviews();
+            List<ReviewModel> reviews;
+
+            // If user is Admin, show all reviews; otherwise show only their own
+            if (User.IsInRole("Admin"))
+            {
+                reviews = _reviewService.GetAllReviews();
+            }
+            else
+            {
+                // Get current logged-in user's ID from claims
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    TempData["ErrorMessage"] = "You must be logged in to view reviews.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                reviews = _reviewService.GetReviewsByUserId(userId);
+            }
+
             return View(reviews);
         }
 
