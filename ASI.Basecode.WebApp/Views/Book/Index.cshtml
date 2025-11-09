@@ -147,6 +147,18 @@
                                         <p class="text-gray-800">@item.Author</p>
                                     </div>
                                     <div class="mb-3">
+                                        <label class="text-sm font-semibold text-gray-600">Genre</label>
+                                        <p class="text-gray-800">
+                                            @(string.IsNullOrEmpty(item.Genre) ? "Not specified" : item.Genre)
+                                        </p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="text-sm font-semibold text-gray-600">Publisher</label>
+                                        <p class="text-gray-800">
+                                            @(string.IsNullOrEmpty(item.Publisher) ? "Not specified" : item.Publisher)
+                                        </p>
+                                    </div>
+                                    <div class="mb-3">
                                         <label class="text-sm font-semibold text-gray-600">Rating</label>
                                         <div class="d-flex align-items-center">
                                             @if (item.ReviewCount > 0)
@@ -175,6 +187,13 @@
                                                 <span class="text-gray-500">No reviews yet</span>
                                             }
                                         </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="text-sm font-semibold text-gray-600">Times Borrowed</label>
+                                        <p class="text-gray-800">
+                                            <i class="fa-solid fa-book-reader me-1"></i>
+                                            @item.BorrowCount time@(item.BorrowCount != 1 ? "s" : "")
+                                        </p>
                                     </div>
                                     <div class="mb-3">
                                         <label class="text-sm font-semibold text-gray-600">Description</label>
