@@ -1,0 +1,423 @@
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa-solid fa-chart-line text-primary"></i> System Reports</h2>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="borrowing-tab" data-toggle="tab" href="#borrowing" role="tab" aria-controls="borrowing" aria-selected="true">
+                <i class="fa-solid fa-book-open-reader"></i> Borrowing Report
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="inventory-tab" data-toggle="tab" href="#inventory" role="tab" aria-controls="inventory" aria-selected="false">
+                <i class="fa-solid fa-book"></i> Inventory Report
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="member-tab" data-toggle="tab" href="#member" role="tab" aria-controls="member" aria-selected="false">
+                <i class="fa-solid fa-users"></i> Member Report
+            </a>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="reportTabsContent">
+        <!-- Borrowing Report -->
+        <div class="tab-pane fade show active" id="borrowing" role="tabpanel" aria-labelledby="borrowing-tab">
+            <div class="row">
+                <!-- Statistics Cards -->
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Borrowings</h5>
+                            <h2 class="mb-0">@ViewBag.TotalBorrowings</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Active</h5>
+                            <h2 class="mb-0">@ViewBag.ActiveBorrowings</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Overdue</h5>
+                            <h2 class="mb-0">@ViewBag.OverdueBorrowings</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-secondary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Returned</h5>
+                            <h2 class="mb-0">@ViewBag.ReturnedBorrowings</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Borrowing Status Pie Chart -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Borrowing Status Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="borrowingStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Borrowing Trends Line Chart -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Borrowing Trends (Last 6 Months)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="borrowingTrendsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Report -->
+        <div class="tab-pane fade" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
+            <div class="row">
+                <!-- Statistics Cards -->
+                <div class="col-md-4 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Books</h5>
+                            <h2 class="mb-0">@ViewBag.TotalBooks</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Available</h5>
+                            <h2 class="mb-0">@ViewBag.AvailableBooks</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Borrowed</h5>
+                            <h2 class="mb-0">@ViewBag.BorrowedBooks</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Books by Genre Chart -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Books by Genre (Top 10)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="booksByGenreChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Borrowed Books Chart -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Most Borrowed Books (Top 10)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="topBorrowedBooksChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Book Status Pie Chart -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Book Availability Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="bookStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Member Report -->
+        <div class="tab-pane fade" id="member" role="tabpanel" aria-labelledby="member-tab">
+            <div class="row">
+                <!-- Statistics Cards -->
+                <div class="col-md-4 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Members</h5>
+                            <h2 class="mb-0">@ViewBag.TotalMembers</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Active Members</h5>
+                            <h2 class="mb-0">@ViewBag.ActiveMembers</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card bg-secondary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Inactive Members</h5>
+                            <h2 class="mb-0">@ViewBag.InactiveMembers</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Top Borrowers Chart -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Top Borrowers (Top 10)</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="topBorrowersChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Member Activity Chart -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Member Activity Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="memberActivityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Members by Role Chart -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Members by Role</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="membersByRoleChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Borrowing Status Pie Chart
+        const borrowingStatusCtx = document.getElementById('borrowingStatusChart').getContext('2d');
+        new Chart(borrowingStatusCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Active', 'Overdue', 'Returned', 'Cancelled'],
+                datasets: [{
+                    data: [@ViewBag.ActiveBorrowings, @ViewBag.OverdueBorrowings, @ViewBag.ReturnedBorrowings, @ViewBag.CancelledBorrowings],
+                    backgroundColor: ['#28a745', '#dc3545', '#6c757d', '#ffc107']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // Borrowing Trends Line Chart
+        const borrowingTrendsCtx = document.getElementById('borrowingTrendsChart').getContext('2d');
+        new Chart(borrowingTrendsCtx, {
+            type: 'line',
+            data: {
+                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.BorrowingsByMonth).Select(x => $"'{x.Month}'")))],
+                datasets: [{
+                    label: 'Borrowings',
+                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.BorrowingsByMonth).Select(x => x.Count)))],
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Books by Genre Chart
+        const booksByGenreCtx = document.getElementById('booksByGenreChart').getContext('2d');
+        new Chart(booksByGenreCtx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.BooksByGenre).Select(x => $"'{x.Genre}'")))],
+                datasets: [{
+                    label: 'Number of Books',
+                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.BooksByGenre).Select(x => x.Count)))],
+                    backgroundColor: '#17a2b8'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Top Borrowed Books Chart
+        const topBorrowedBooksCtx = document.getElementById('topBorrowedBooksChart').getContext('2d');
+        new Chart(topBorrowedBooksCtx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.TopBorrowedBooks).Select(x => $"'{x.Title}'")))],
+                datasets: [{
+                    label: 'Times Borrowed',
+                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.TopBorrowedBooks).Select(x => x.BorrowCount)))],
+                    backgroundColor: '#28a745'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Book Status Pie Chart
+        const bookStatusCtx = document.getElementById('bookStatusChart').getContext('2d');
+        new Chart(bookStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Available', 'Borrowed'],
+                datasets: [{
+                    data: [@ViewBag.AvailableBooks, @ViewBag.BorrowedBooks],
+                    backgroundColor: ['#28a745', '#ffc107']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // Top Borrowers Chart
+        const topBorrowersCtx = document.getElementById('topBorrowersChart').getContext('2d');
+        new Chart(topBorrowersCtx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.TopBorrowers).Select(x => $"'{x.UserName}'")))],
+                datasets: [{
+                    label: 'Books Borrowed',
+                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.TopBorrowers).Select(x => x.BorrowCount)))],
+                    backgroundColor: '#007bff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Member Activity Chart
+        const memberActivityCtx = document.getElementById('memberActivityChart').getContext('2d');
+        new Chart(memberActivityCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Active', 'Inactive'],
+                datasets: [{
+                    data: [@ViewBag.ActiveMembers, @ViewBag.InactiveMembers],
+                    backgroundColor: ['#28a745', '#6c757d']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // Members by Role Chart
+        const membersByRoleCtx = document.getElementById('membersByRoleChart').getContext('2d');
+        new Chart(membersByRoleCtx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.MembersByRole).Select(x => $"'{x.Role}'")))],
+                datasets: [{
+                    label: 'Number of Members',
+                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.MembersByRole).Select(x => x.Count)))],
+                    backgroundColor: '#6f42c1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+}
