@@ -14,13 +14,15 @@ namespace ASI.Basecode.WebApp.Controllers
         private readonly ILogger<BookController> _logger;
         private readonly IBookService _bookService;
         private readonly IReviewService _reviewService;
+        private readonly IBorrowingService _borrowingService;
 
-        // Inject IBookService and IReviewService
-        public BookController(ILogger<BookController> logger, IBookService bookService, IReviewService reviewService)
+        // Inject IBookService, IReviewService, and IBorrowingService
+        public BookController(ILogger<BookController> logger, IBookService bookService, IReviewService reviewService, IBorrowingService borrowingService)
         {
             _logger = logger;
             _bookService = bookService;
             _reviewService = reviewService;
+            _borrowingService = borrowingService;
         }
 
         // GET: /Book/Index (READ: List all available books)
@@ -88,6 +90,12 @@ namespace ASI.Basecode.WebApp.Controllers
             ViewBag.AllReviews = books.ToDictionary(
                 b => b.BookID,
                 b => _reviewService.GetReviewsByBookId(b.BookID)
+            );
+
+            // Pass borrowing history to ViewBag for display in modals
+            ViewBag.AllBorrowings = books.ToDictionary(
+                b => b.BookID,
+                b => _borrowingService.GetBorrowingsByBookId(b.BookID)
             );
 
             return View(books);

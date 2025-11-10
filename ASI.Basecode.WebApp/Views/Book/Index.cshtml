@@ -499,6 +499,11 @@
                             }
                         </div>
                         <div class="modal-footer">
+                            <!-- Borrowing History Button -->
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#borrowingHistoryModal-@item.BookID">
+                                <i class="fa-solid fa-history mr-2"></i>Borrowing History
+                            </button>
+
                             <!-- Review Button/Form -->
                             <button type="button" class="btn btn-warning" data-toggle="collapse" data-target="#reviewForm-@item.BookID">
                                 <i class="fa-solid fa-star mr-2"></i>Write a Review
@@ -530,6 +535,120 @@
                                 </form>
                             }
 
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Borrowing History Modal -->
+            <div class="modal fade" id="borrowingHistoryModal-@item.BookID" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title">
+                                <i class="fa-solid fa-history mr-2"></i>Borrowing History - @item.Title
+                            </h5>
+                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @{
+                                var allBorrowings = ViewBag.AllBorrowings as Dictionary<int, List<ASI.Basecode.Services.ServiceModels.BorrowingModel>>;
+                                var bookBorrowings = allBorrowings != null && allBorrowings.ContainsKey(item.BookID) ? allBorrowings[item.BookID] : new List<ASI.Basecode.Services.ServiceModels.BorrowingModel>();
+                            }
+
+                            @if (bookBorrowings.Any())
+                            {
+                                <div class="mb-3">
+                                    <p class="text-muted">
+                                        <i class="fa-solid fa-info-circle mr-2"></i>
+                                        This book has been borrowed <strong>@bookBorrowings.Count</strong> time(s)
+                                    </p>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>Borrower</th>
+                                                <th>Borrow Date</th>
+                                                <th>Due Date</th>
+                                                <th>Return Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var borrowing in bookBorrowings.OrderByDescending(b => b.BorrowDate))
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <i class="fa-solid fa-user mr-1 text-primary"></i>
+                                                        <strong>@borrowing.UserName</strong>
+                                                        <br />
+                                                        <small class="text-muted">@borrowing.UserEmail</small>
+                                                    </td>
+                                                    <td>
+                                                        <i class="fa-solid fa-calendar mr-1"></i>
+                                                        @borrowing.BorrowDate.ToString("MMM dd, yyyy")
+                                                    </td>
+                                                    <td>
+                                                        <i class="fa-solid fa-calendar-check mr-1"></i>
+                                                        @borrowing.DueDate.ToString("MMM dd, yyyy")
+                                                    </td>
+                                                    <td>
+                                                        @if (borrowing.ReturnDate.HasValue)
+                                                        {
+                                                            <i class="fa-solid fa-calendar-check mr-1 text-success"></i>
+                                                            @borrowing.ReturnDate.Value.ToString("MMM dd, yyyy")
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">Not returned yet</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (borrowing.Status == "Returned")
+                                                        {
+                                                            <span class="badge bg-success">
+                                                                <i class="fa-solid fa-check mr-1"></i>Returned
+                                                            </span>
+                                                        }
+                                                        else if (borrowing.Status == "Overdue")
+                                                        {
+                                                            <span class="badge bg-danger">
+                                                                <i class="fa-solid fa-exclamation-triangle mr-1"></i>Overdue
+                                                            </span>
+                                                        }
+                                                        else if (borrowing.BorrowDate.Date > DateTime.Now.Date)
+                                                        {
+                                                            <span class="badge bg-info">
+                                                                <i class="fa-solid fa-clock mr-1"></i>Reserved
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-primary">
+                                                                <i class="fa-solid fa-book-open mr-1"></i>Active
+                                                            </span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-5">
+                                    <i class="fa-solid fa-book text-gray-400" style="font-size: 64px;"></i>
+                                    <p class="text-muted mt-3">This book has never been borrowed.</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         </div>
                     </div>
