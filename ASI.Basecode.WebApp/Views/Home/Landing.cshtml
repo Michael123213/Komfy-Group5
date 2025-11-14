@@ -659,7 +659,8 @@
     /* Hero Section */
     .kozy-hero {
         width: 100%;
-        padding: 8rem 4rem 6rem 4rem;
+        padding: 10rem 4rem 6rem 4rem;
+        padding-top: 12rem;
         position: relative;
         z-index: 10;
         display: grid;
@@ -687,6 +688,10 @@
 
     .kozy-hero-content {
         animation: fadeInUp 1s ease-out;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
     }
 
     .kozy-hero-content h1 {
@@ -768,9 +773,10 @@
         transition: all 0.4s ease;
         display: flex;
         flex-direction: column;
-        align-self: start;
+        align-self: center;
         min-height: fit-content;
         height: fit-content;
+        margin-top: 2rem;
     }
 
     .kozy-featured-book:hover {
