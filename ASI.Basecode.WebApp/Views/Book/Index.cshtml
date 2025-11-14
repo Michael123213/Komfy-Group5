@@ -677,6 +677,88 @@
         }
     </div>
 
+    <!-- Pagination Controls -->
+    @if (Model.Any() && ViewBag.TotalPages > 1)
+    {
+        <div class="mt-8 flex justify-center items-center gap-2">
+            <!-- Previous Button -->
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <a asp-action="Index"
+                   asp-route-page="@(ViewBag.CurrentPage - 1)"
+                   asp-route-searchTerm="@ViewBag.SearchTerm"
+                   asp-route-genre="@ViewBag.SelectedGenre"
+                   asp-route-author="@ViewBag.SelectedAuthor"
+                   asp-route-publisher="@ViewBag.SelectedPublisher"
+                   asp-route-yearPublished="@ViewBag.SelectedYear"
+                   asp-route-minRating="@ViewBag.SelectedRating"
+                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
+                    <i class="fa-solid fa-chevron-left mr-1"></i> Previous
+                </a>
+            }
+            else
+            {
+                <span class="px-4 py-2 bg-gray-100 text-gray-400 rounded cursor-not-allowed">
+                    <i class="fa-solid fa-chevron-left mr-1"></i> Previous
+                </span>
+            }
+
+            <!-- Page Numbers -->
+            <div class="flex gap-1">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    @if (i == ViewBag.CurrentPage)
+                    {
+                        <span class="px-4 py-2 bg-blue-600 text-white rounded font-semibold">@i</span>
+                    }
+                    else if (Math.Abs(i - ViewBag.CurrentPage) <= 2 || i == 1 || i == ViewBag.TotalPages)
+                    {
+                        <a asp-action="Index"
+                           asp-route-page="@i"
+                           asp-route-searchTerm="@ViewBag.SearchTerm"
+                           asp-route-genre="@ViewBag.SelectedGenre"
+                           asp-route-author="@ViewBag.SelectedAuthor"
+                           asp-route-publisher="@ViewBag.SelectedPublisher"
+                           asp-route-yearPublished="@ViewBag.SelectedYear"
+                           asp-route-minRating="@ViewBag.SelectedRating"
+                           class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">@i</a>
+                    }
+                    else if (Math.Abs(i - ViewBag.CurrentPage) == 3)
+                    {
+                        <span class="px-2 py-2 text-gray-500">...</span>
+                    }
+                }
+            </div>
+
+            <!-- Next Button -->
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <a asp-action="Index"
+                   asp-route-page="@(ViewBag.CurrentPage + 1)"
+                   asp-route-searchTerm="@ViewBag.SearchTerm"
+                   asp-route-genre="@ViewBag.SelectedGenre"
+                   asp-route-author="@ViewBag.SelectedAuthor"
+                   asp-route-publisher="@ViewBag.SelectedPublisher"
+                   asp-route-yearPublished="@ViewBag.SelectedYear"
+                   asp-route-minRating="@ViewBag.SelectedRating"
+                   class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
+                    Next <i class="fa-solid fa-chevron-right ml-1"></i>
+                </a>
+            }
+            else
+            {
+                <span class="px-4 py-2 bg-gray-100 text-gray-400 rounded cursor-not-allowed">
+                    Next <i class="fa-solid fa-chevron-right ml-1"></i>
+                </span>
+            }
+        </div>
+
+        <!-- Pagination Info -->
+        <div class="mt-4 text-center text-gray-600 text-sm">
+            Showing @((ViewBag.CurrentPage - 1) * ViewBag.PageSize + 1) to @(Math.Min(ViewBag.CurrentPage * ViewBag.PageSize, ViewBag.TotalCount)) of @ViewBag.TotalCount books
+        </div>
+    }
+
     @if (!Model.Any())
     {
         <div class="text-center py-12">

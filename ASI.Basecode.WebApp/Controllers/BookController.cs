@@ -28,19 +28,25 @@ namespace ASI.Basecode.WebApp.Controllers
             _borrowingService = borrowingService;
         }
 
-        // GET: /Book/Index (READ: List all available books)
-        public IActionResult Index(string searchTerm, string genre, string author, string publisher, int? yearPublished, decimal? minRating)
+        // GET: /Book/Index (READ: List all available books with pagination)
+        public IActionResult Index(string searchTerm, string genre, string author, string publisher, int? yearPublished, decimal? minRating, int page = 1)
         {
+            const int pageSize = 10;
             List<BookModel> books;
+            int totalCount;
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 books = _bookService.SearchBooks(searchTerm);
+                totalCount = books.Count;
+                books = books.Skip((page - 1) * pageSize).Take(pageSize).ToList();
                 ViewBag.SearchTerm = searchTerm;
             }
             else
             {
-                books = _bookService.GetAvailableBooks();
+                var result = _bookService.GetAllBooksPaginated(page, pageSize);
+                books = result.Books;
+                totalCount = result.TotalCount;
             }
 
             // Populate review data for each book
@@ -83,7 +89,7 @@ namespace ASI.Basecode.WebApp.Controllers
             }
 
             // Get unique values for filter dropdowns (from all books)
-            var allBooks = _bookService.GetAvailableBooks();
+            var allBooks = _bookService.GetAllBooks();
             ViewBag.Genres = allBooks.Where(b => !string.IsNullOrWhiteSpace(b.Genre)).Select(b => b.Genre).Distinct().OrderBy(g => g).ToList();
             ViewBag.Authors = allBooks.Where(b => !string.IsNullOrWhiteSpace(b.Author)).Select(b => b.Author).Distinct().OrderBy(a => a).ToList();
             ViewBag.Publishers = allBooks.Where(b => !string.IsNullOrWhiteSpace(b.Publisher)).Select(b => b.Publisher).Distinct().OrderBy(p => p).ToList();
@@ -100,6 +106,12 @@ namespace ASI.Basecode.WebApp.Controllers
                 b => b.BookID,
                 b => _borrowingService.GetBorrowingsByBookId(b.BookID)
             );
+
+            // Pagination data
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)System.Math.Ceiling(totalCount / (double)pageSize);
+            ViewBag.TotalCount = totalCount;
+            ViewBag.PageSize = pageSize;
 
             return View(books);
         }

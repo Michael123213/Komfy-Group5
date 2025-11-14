@@ -165,6 +165,37 @@ namespace ASI.Basecode.Services.Services
             }).ToList();
         }
 
+        public (List<BookModel> Books, int TotalCount) GetAllBooksPaginated(int pageNumber, int pageSize)
+        {
+            var allBooks = _bookRepository.GetBooks().ToList();
+            var totalCount = allBooks.Count;
+
+            var paginatedBooks = allBooks
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(b => new BookModel
+                {
+                    BookID = b.BookID,
+                    Title = b.Title,
+                    BookCode = b.BookCode,
+                    Genre = b.Genre,
+                    Author = b.Author,
+                    Publisher = b.Publisher,
+                    Status = b.Status,
+                    DatePublished = b.DatePublished,
+                    Description = b.Description,
+                    CoverImagePath = b.CoverImagePath,
+                    IsEbook = b.IsEbook,
+                    EbookPath = b.EbookPath,
+                    ViewCount = b.ViewCount,
+                    BorrowCount = b.BorrowCount,
+                    AverageRating = b.Reviews.Any() ? b.Reviews.Average(r => r.Rating) : 0,
+                    ReviewCount = b.Reviews.Count
+                }).ToList();
+
+            return (paginatedBooks, totalCount);
+        }
+
         public BookModel GetBookByCode(string bookCode)
         {
             var book = _bookRepository.GetBookByCode(bookCode);

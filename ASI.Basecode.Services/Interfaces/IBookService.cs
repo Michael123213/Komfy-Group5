@@ -8,6 +8,7 @@ namespace ASI.Basecode.Services.Interfaces
         // READ operations
         List<BookModel> GetAvailableBooks();
         List<BookModel> GetAllBooks();
+        (List<BookModel> Books, int TotalCount) GetAllBooksPaginated(int pageNumber, int pageSize);
         BookModel GetBookDetails(int bookId);
         BookModel GetBookByCode(string bookCode);
 
