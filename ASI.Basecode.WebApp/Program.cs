@@ -14,7 +14,7 @@ var appBuilder = WebApplication.CreateBuilder(new WebApplicationOptions
 
 appBuilder.Configuration
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{appBuilder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+    .AddJsonFile($"appsettings.Development.json", optional: true, reloadOnChange: true);
 
 appBuilder.WebHost.UseIISIntegration();
 
