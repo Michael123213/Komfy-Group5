@@ -222,9 +222,16 @@
         {
             <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition duration-300 overflow-hidden cursor-pointer"
                  data-toggle="modal" data-target="#bookModal-@item.BookID">
-                <!-- Book Image Placeholder -->
-                <div class="bg-gradient-to-br from-blue-400 to-purple-500 h-48 flex items-center justify-center">
-                    <i class="fa-solid fa-book text-white text-6xl opacity-75"></i>
+                <!-- Book Cover Image -->
+                <div class="h-64 flex items-center justify-center overflow-hidden bg-gray-100">
+                    @if (!string.IsNullOrEmpty(item.CoverImagePath))
+                    {
+                        <img src="@item.CoverImagePath" alt="@item.Title" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-book text-gray-400 text-6xl\'></i>';" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-book text-gray-400 text-6xl"></i>
+                    }
                 </div>
 
                 <!-- Book Info -->
@@ -279,8 +286,15 @@
                             <div class="row">
                                 <!-- Book Image -->
                                 <div class="col-md-4">
-                                    <div class="bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg h-64 flex items-center justify-center">
-                                        <i class="fa-solid fa-book text-white text-7xl opacity-75"></i>
+                                    <div class="rounded-lg h-80 flex items-center justify-center overflow-hidden bg-gray-100">
+                                        @if (!string.IsNullOrEmpty(item.CoverImagePath))
+                                        {
+                                            <img src="@item.CoverImagePath" alt="@item.Title" class="w-full h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-book text-gray-400 text-7xl\'></i>';" />
+                                        }
+                                        else
+                                        {
+                                            <i class="fa-solid fa-book text-gray-400 text-7xl"></i>
+                                        }
                                     </div>
                                     <div class="mt-3 text-center">
                                         <span class="px-4 py-2 text-sm font-semibold rounded-full @(item.Status == "Available" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">

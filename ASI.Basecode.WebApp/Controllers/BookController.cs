@@ -1,9 +1,12 @@
 ﻿using ASI.Basecode.Services.Interfaces;
 using ASI.Basecode.Services.ServiceModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace ASI.Basecode.WebApp.Controllers
@@ -112,12 +115,29 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(BookModel model)
+        public IActionResult Create(BookModel model, IFormFile CoverImage)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Handle cover image upload
+                    if (CoverImage != null && CoverImage.Length > 0)
+                    {
+                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "covers");
+                        Directory.CreateDirectory(uploadsFolder); // Ensure directory exists
+
+                        var uniqueFileName = $"{Guid.NewGuid()}_{CoverImage.FileName}";
+                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            CoverImage.CopyTo(fileStream);
+                        }
+
+                        model.CoverImagePath = $"/uploads/covers/{uniqueFileName}";
+                    }
+
                     _bookService.AddBook(model);
                     TempData["SuccessMessage"] = "Book added successfully.";
                     return RedirectToAction(nameof(Index));
@@ -148,7 +168,7 @@ namespace ASI.Basecode.WebApp.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, BookModel model)
+        public IActionResult Edit(int id, BookModel model, IFormFile CoverImage)
         {
             if (id != model.BookID)
             {
@@ -159,6 +179,33 @@ namespace ASI.Basecode.WebApp.Controllers
             {
                 try
                 {
+                    // Handle cover image upload
+                    if (CoverImage != null && CoverImage.Length > 0)
+                    {
+                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "covers");
+                        Directory.CreateDirectory(uploadsFolder); // Ensure directory exists
+
+                        var uniqueFileName = $"{Guid.NewGuid()}_{CoverImage.FileName}";
+                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            CoverImage.CopyTo(fileStream);
+                        }
+
+                        // Delete old cover image if it exists and is a local file
+                        if (!string.IsNullOrEmpty(model.CoverImagePath) && model.CoverImagePath.StartsWith("/uploads/"))
+                        {
+                            var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", model.CoverImagePath.TrimStart('/'));
+                            if (System.IO.File.Exists(oldImagePath))
+                            {
+                                System.IO.File.Delete(oldImagePath);
+                            }
+                        }
+
+                        model.CoverImagePath = $"/uploads/covers/{uniqueFileName}";
+                    }
+
                     _bookService.UpdateBook(model);
                     TempData["SuccessMessage"] = "Book updated successfully.";
                     return RedirectToAction(nameof(Index));
