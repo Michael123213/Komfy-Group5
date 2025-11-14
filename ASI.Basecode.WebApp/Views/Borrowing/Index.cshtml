@@ -1,134 +1,224 @@
 @model List<ASI.Basecode.Services.ServiceModels.BorrowingModel>
 
 @{
-    ViewData["Title"] = "Borrowings";
+    ViewData["Title"] = "My Library - KOZY";
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fa-solid fa-book-open-reader"></i> Borrowing Management</h2>
-        <div>
-            <a asp-action="Active" class="btn btn-success me-2">
-                <i class="fa-solid fa-check-circle"></i> Active Borrowings
+<style>
+    .kozy-borrowing-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .kozy-borrowing-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2F3030;
+    }
+
+    .kozy-borrowing-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .kozy-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .kozy-table thead {
+        background: linear-gradient(135deg, #FF8223 0%, #FFA45F 100%);
+        color: white;
+    }
+
+    .kozy-table thead th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .kozy-table tbody tr {
+        border-bottom: 1px solid #E5E7EB;
+        transition: all 0.2s ease;
+    }
+
+    .kozy-table tbody tr:hover {
+        background-color: #F9FAFB;
+    }
+
+    .kozy-table tbody td {
+        padding: 1rem;
+        color: #2F3030;
+    }
+
+    .kozy-btn-action {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .kozy-btn-return {
+        background: #10B981;
+        color: white;
+    }
+
+    .kozy-btn-return:hover {
+        background: #059669;
+        transform: translateY(-2px);
+    }
+
+    .kozy-btn-cancel {
+        background: #EF4444;
+        color: white;
+    }
+
+    .kozy-btn-cancel:hover {
+        background: #DC2626;
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="animate-fade-in">
+    <div class="kozy-borrowing-header">
+        <h1 class="kozy-borrowing-title">
+            <i class="fa-solid fa-book-open-reader me-2"></i>My Library
+        </h1>
+        <div class="d-flex gap-2">
+            <a asp-action="Active" class="btn" style="background: #10B981; color: white; border-radius: 12px; padding: 0.75rem 1.5rem;">
+                <i class="fa-solid fa-check-circle me-2"></i>Active Borrowings
             </a>
-            <a asp-action="Overdue" class="btn btn-danger">
-                <i class="fa-solid fa-exclamation-triangle"></i> Overdue
+            <a asp-action="Overdue" class="btn" style="background: #EF4444; color: white; border-radius: 12px; padding: 0.75rem 1.5rem;">
+                <i class="fa-solid fa-exclamation-triangle me-2"></i>Overdue
             </a>
         </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+            <i class="fa-solid fa-check-circle me-2"></i>@TempData["SuccessMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+            <i class="fa-solid fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>User</th>
-                            <th>Book</th>
-                            <th>Borrow Date</th>
-                            <th>Due Date</th>
-                            <th>Return Date</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model != null && Model.Any())
+    <div class="kozy-borrowing-card">
+        <div class="table-responsive">
+            <table class="kozy-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Book</th>
+                        <th>Borrow Date</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var borrowing in Model)
                         {
-                            @foreach (var borrowing in Model)
+                            var statusBadge = borrowing.Status switch
                             {
-                                var statusBadge = borrowing.Status switch
-                                {
-                                    "Active" => "bg-success",
-                                    "Returned" => "bg-secondary",
-                                    "Overdue" => "bg-danger",
-                                    "Cancelled" => "bg-warning",
-                                    _ => "bg-primary"
-                                };
-                                <tr>
-                                    <td>@borrowing.BorrowingID</td>
-                                    <td>
-                                        @borrowing.UserName<br/>
-                                        <small class="text-muted">@borrowing.UserEmail</small>
-                                    </td>
-                                    <td>
-                                        @borrowing.BookTitle<br/>
-                                        <small class="text-muted">Code: @borrowing.BookCode</small>
-                                    </td>
-                                    <td>
-                                        @borrowing.BorrowDate.ToString("MMM dd, yyyy")
-                                        @if (borrowing.BorrowDate.Date > DateTime.Now.Date)
-                                        {
-                                            <br/><span class="badge bg-info text-white">Reserved</span>
-                                        }
-                                    </td>
-                                    <td>@borrowing.DueDate.ToString("MMM dd, yyyy")</td>
-                                    <td>@(borrowing.ReturnDate?.ToString("MMM dd, yyyy") ?? "Not returned")</td>
-                                    <td><span class="badge @statusBadge">@borrowing.Status</span></td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            @if (borrowing.Status != "Cancelled" && borrowing.BorrowDate.Date > DateTime.Now.Date)
-                                            {
-                                                <!-- Cancel Reservation button for future reservations (not already cancelled) -->
-                                                <form asp-action="CancelReservation" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="id" value="@borrowing.BorrowingID" />
-                                                    <button type="submit" class="btn btn-sm btn-danger" title="Cancel Reservation">
-                                                        <i class="fa-solid fa-times"></i> Cancel
-                                                    </button>
-                                                </form>
-                                            }
-                                            else if (borrowing.Status == "Active" || borrowing.Status == "Overdue")
-                                            {
-                                                <form asp-action="Return" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="id" value="@borrowing.BorrowingID" />
-                                                    <button type="submit" class="btn btn-sm btn-success" title="Return Book">
-                                                        <i class="fa-solid fa-check"></i> Return
-                                                    </button>
-                                                </form>
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                        else
-                        {
+                                "Active" => "bg-success",
+                                "Returned" => "bg-secondary",
+                                "Overdue" => "bg-danger",
+                                "Cancelled" => "bg-warning",
+                                _ => "bg-primary"
+                            };
                             <tr>
-                                <td colspan="8" class="text-center">No borrowings found.</td>
+                                <td>@borrowing.BorrowingID</td>
+                                <td>
+                                    <strong>@borrowing.UserName</strong><br/>
+                                    <small style="color: #6B7280;">@borrowing.UserEmail</small>
+                                </td>
+                                <td>
+                                    <strong>@borrowing.BookTitle</strong><br/>
+                                    <small style="color: #6B7280;">Code: @borrowing.BookCode</small>
+                                </td>
+                                <td>
+                                    @borrowing.BorrowDate.ToString("MMM dd, yyyy")
+                                    @if (borrowing.BorrowDate.Date > DateTime.Now.Date)
+                                    {
+                                        <br/><span class="badge" style="background: #68BEB2; color: white; padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.75rem;">Reserved</span>
+                                    }
+                                </td>
+                                <td>@borrowing.DueDate.ToString("MMM dd, yyyy")</td>
+                                <td>@(borrowing.ReturnDate?.ToString("MMM dd, yyyy") ?? "Not returned")</td>
+                                <td>
+                                    <span class="badge @statusBadge" style="padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.875rem;">
+                                        @borrowing.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        @if (borrowing.Status != "Cancelled" && borrowing.BorrowDate.Date > DateTime.Now.Date)
+                                        {
+                                            <form asp-action="CancelReservation" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@borrowing.BorrowingID" />
+                                                <button type="submit" class="kozy-btn-action kozy-btn-cancel" title="Cancel Reservation">
+                                                    <i class="fa-solid fa-times me-1"></i>Cancel
+                                                </button>
+                                            </form>
+                                        }
+                                        else if (borrowing.Status == "Active" || borrowing.Status == "Overdue")
+                                        {
+                                            <form asp-action="Return" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@borrowing.BorrowingID" />
+                                                <button type="submit" class="kozy-btn-action kozy-btn-return" title="Return Book">
+                                                    <i class="fa-solid fa-check me-1"></i>Return
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
                             </tr>
                         }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <i class="fa-solid fa-book-open" style="font-size: 3rem; color: #C3C3C3; margin-bottom: 1rem;"></i>
+                                <p style="color: #6B7280;">No borrowings found.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
 <script>
-    // Show popup notifications for TempData messages
     @if (TempData["SuccessMessage"] != null)
     {
         <text>
-        if (typeof showNotificationToast === 'function') {
+        if (typeof showNotificationToast !== 'undefined') {
             showNotificationToast('@TempData["SuccessMessage"]', 'success');
         }
         </text>
@@ -137,10 +227,9 @@
     @if (TempData["ErrorMessage"] != null)
     {
         <text>
-        if (typeof showNotificationToast === 'function') {
+        if (typeof showNotificationToast !== 'undefined') {
             showNotificationToast('@TempData["ErrorMessage"]', 'danger');
         }
         </text>
     }
 </script>
-</div>

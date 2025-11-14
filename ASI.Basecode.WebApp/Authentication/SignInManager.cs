@@ -129,10 +129,11 @@ namespace ASI.Basecode.WebApp.Authentication
         }
 
         /// <summary>
-        /// Signs in user asynchronously
+        /// Signs in a user asynchronously using the provided principal.
+        /// Configures authentication properties including expiration and refresh capabilities.
         /// </summary>
-        /// <param name="principal">The principal.</param>
-        /// <param name="isPersistent">if set to <c>true</c> [is persistent].</param>
+        /// <param name="principal">The claims principal containing user identity and claims</param>
+        /// <param name="isPersistent">If true, the authentication cookie persists across browser sessions</param>
         public async Task SignInAsync(IPrincipal principal, bool isPersistent = false)
         {
             var token = _configuration.GetTokenAuthentication();
@@ -143,9 +144,12 @@ namespace ASI.Basecode.WebApp.Authentication
                             (ClaimsPrincipal)principal,
                             new AuthenticationProperties
                             {
+                                // Set cookie expiration time based on configuration
                                 ExpiresUtc = DateTime.UtcNow.AddMinutes(token.ExpirationMinutes),
+                                // Persist cookie across browser sessions if requested
                                 IsPersistent = isPersistent,
-                                AllowRefresh = false
+                                // Enable session refresh to prevent automatic logouts during active use
+                                AllowRefresh = true
                             });
         }
 

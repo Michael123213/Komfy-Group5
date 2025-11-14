@@ -133,7 +133,7 @@ namespace ASI.Basecode.WebApp.Controllers
             {
                 TempData["ErrorMessage"] = ex.Message;
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 TempData["ErrorMessage"] = Resources.Messages.Errors.ServerError;
             }
@@ -153,15 +153,16 @@ namespace ASI.Basecode.WebApp.Controllers
         }
 
         /// <summary>
-        /// Logout - User-friendly logout endpoint (supports both GET and POST)
+        /// Handles user logout by clearing authentication and session data.
+        /// Redirects to the landing page after successful logout.
         /// </summary>
-        /// <returns>Redirect to login page</returns>
+        /// <returns>Redirect to landing page</returns>
         public async Task<IActionResult> Logout()
         {
             await this._signInManager.SignOutAsync();
             this._sessionManager.Clear();
-            TempData["SuccessMessage"] = "You have been logged out successfully.";
-            return RedirectToAction("Login", "Account");
+            // Redirect to landing page without setting TempData to prevent message persistence
+            return RedirectToAction("Landing", "Home");
         }
 
         /// <summary>

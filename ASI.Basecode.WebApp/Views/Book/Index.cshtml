@@ -1,50 +1,181 @@
 @model List<ASI.Basecode.Services.ServiceModels.BookModel>
 
 @{
-    ViewData["Title"] = "Book Management";
+    ViewData["Title"] = "Catalog - KOZY";
 }
 
-<div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Book Library</h1>
+<style>
+    .kozy-book-page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .kozy-book-page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2F3030;
+    }
+
+    .kozy-btn-add {
+        background: #FF8223;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 130, 35, 0.3);
+    }
+
+    .kozy-btn-add:hover {
+        background: #FFA45F;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 130, 35, 0.4);
+        color: white;
+    }
+
+    .kozy-book-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .kozy-book-card-modern {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .kozy-book-card-modern:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .kozy-book-cover-modern {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        background: #C3C3C3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .kozy-book-info-modern {
+        padding: 1rem;
+    }
+
+    .kozy-book-title-modern {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 3rem;
+    }
+
+    .kozy-book-author-modern {
+        font-size: 0.875rem;
+        color: #6B7280;
+        margin-bottom: 0.5rem;
+    }
+
+    .kozy-search-section-modern {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .kozy-filter-section-modern {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .kozy-btn-search {
+        background: #2A5C55;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .kozy-btn-search:hover {
+        background: #1f4a44;
+        transform: translateY(-2px);
+    }
+
+    .kozy-input-modern {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #C3C3C3;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .kozy-input-modern:focus {
+        outline: none;
+        border-color: #FF8223;
+        box-shadow: 0 0 0 3px rgba(255, 130, 35, 0.1);
+    }
+</style>
+
+<div class="animate-fade-in">
+    <div class="kozy-book-page-header">
+        <h1 class="kozy-book-page-title">Catalog</h1>
         @if (User.IsInRole("Admin"))
         {
-            <a asp-action="Create" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-150 shadow-md">
-                <i class="fa-solid fa-plus mr-2"></i>Add New Book
+            <a asp-action="Create" class="kozy-btn-add">
+                <i class="fa-solid fa-plus me-2"></i>Add New Book
             </a>
         }
     </div>
 
     <!-- Search Bar -->
-    <div class="mb-6">
-        <form asp-action="Index" method="get" class="flex gap-2">
-            <div class="flex-1 relative">
+    <div class="kozy-search-section-modern">
+        <form asp-action="Index" method="get" class="d-flex gap-2">
+            <div class="flex-grow-1 position-relative">
+                <i class="fa-solid fa-search position-absolute" style="left: 1rem; top: 50%; transform: translateY(-50%); color: #6B7280;"></i>
                 <input type="text"
                        name="searchTerm"
                        value="@ViewBag.SearchTerm"
                        placeholder="Search by book title or book code..."
-                       class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
-                <i class="fa-solid fa-search absolute left-3 top-3 text-gray-400"></i>
+                       class="kozy-input-modern" style="padding-left: 3rem;" />
             </div>
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-150 shadow-md">
-                <i class="fa-solid fa-search mr-2"></i>Search
+            <button type="submit" class="kozy-btn-search">
+                <i class="fa-solid fa-search me-2"></i>Search
             </button>
             @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string))
             {
-                <a asp-action="Index" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-150 shadow-md">
-                    <i class="fa-solid fa-times mr-2"></i>Clear
+                <a asp-action="Index" class="btn" style="background: #C3C3C3; color: white; padding: 0.75rem 1.5rem; border-radius: 12px; text-decoration: none;">
+                    <i class="fa-solid fa-times me-2"></i>Clear
                 </a>
             }
         </form>
     </div>
 
     <!-- Filters Section -->
-    <div class="mb-6 bg-white rounded-lg shadow-md p-4">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-800">
-                <i class="fa-solid fa-filter mr-2"></i>Filters
+    <div class="kozy-filter-section-modern">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0" style="font-size: 1.125rem; font-weight: 600; color: #2F3030;">
+                <i class="fa-solid fa-filter me-2"></i>Filters
             </h3>
-            <button type="button" id="toggleFilters" class="text-blue-600 hover:text-blue-700 text-sm">
+            <button type="button" id="toggleFilters" class="btn btn-link p-0" style="color: #FF8223; text-decoration: none;">
                 <i class="fa-solid fa-chevron-down" id="filterIcon"></i>
                 <span id="filterText">Show Filters</span>
             </button>
@@ -217,34 +348,34 @@
     }
 
     <!-- Books Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="kozy-book-grid">
         @foreach (var item in Model)
         {
-            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition duration-300 overflow-hidden cursor-pointer"
-                 data-toggle="modal" data-target="#bookModal-@item.BookID">
+            <div class="kozy-book-card-modern animate-fade-in-up"
+                 data-bs-toggle="modal" data-bs-target="#bookModal-@item.BookID">
                 <!-- Book Cover Image -->
-                <div class="h-64 flex items-center justify-center overflow-hidden bg-gray-100">
+                <div class="kozy-book-cover-modern">
                     @if (!string.IsNullOrEmpty(item.CoverImagePath))
                     {
-                        <img src="@item.CoverImagePath" alt="@item.Title" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-book text-gray-400 text-6xl\'></i>';" />
+                        <img src="@item.CoverImagePath" alt="@item.Title" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-book text-white\' style=\'font-size: 3rem;\'></i>';" />
                     }
                     else
                     {
-                        <i class="fa-solid fa-book text-gray-400 text-6xl"></i>
+                        <i class="fa-solid fa-book text-white" style="font-size: 3rem;"></i>
                     }
                 </div>
 
                 <!-- Book Info -->
-                <div class="p-4">
-                    <h3 class="font-bold text-lg text-gray-800 mb-2 line-clamp-2 min-h-[3.5rem]">
+                <div class="kozy-book-info-modern">
+                    <h3 class="kozy-book-title-modern">
                         @item.Title
                     </h3>
-                    <p class="text-sm text-gray-600 mb-2">
-                        <i class="fa-solid fa-user mr-1"></i>@item.Author
+                    <p class="kozy-book-author-modern">
+                        <i class="fa-solid fa-user me-1"></i>@item.Author
                     </p>
                     @if (item.ReviewCount > 0)
                     {
-                        <div class="text-warning text-sm mb-2">
+                        <div style="color: #F59E0B; font-size: 0.875rem; margin-bottom: 0.5rem;">
                             @for (int i = 1; i <= 5; i++)
                             {
                                 if (i <= Math.Floor(item.AverageRating))
@@ -260,14 +391,14 @@
                                     <i class="fa-regular fa-star"></i>
                                 }
                             }
-                            <span class="text-gray-600 ml-1">@item.AverageRating.ToString("0.0")</span>
+                            <span style="color: #6B7280; margin-left: 0.5rem;">@item.AverageRating.ToString("0.0")</span>
                         </div>
                     }
-                    <div class="flex justify-between items-center">
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full @(item.Status == "Available" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge @(item.Status == "Available" ? "bg-success" : "bg-danger")" style="padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">
                             @item.Status
                         </span>
-                        <span class="text-xs text-gray-500 font-mono">@item.BookCode</span>
+                        <span style="font-size: 0.75rem; color: #6B7280; font-family: monospace;">@item.BookCode</span>
                     </div>
                 </div>
             </div>
@@ -275,14 +406,12 @@
             <!-- Book Details Modal -->
             <div class="modal fade" id="bookModal-@item.BookID" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                    <div class="modal-content" style="border-radius: 16px; border: none; overflow: hidden;">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #FF8223 0%, #FFA45F 100%); color: white; border-radius: 0;">
                             <h5 class="modal-title font-bold text-xl">@item.Title</h5>
-                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body" style="padding: 2rem;">
                             <div class="row">
                                 <!-- Book Image -->
                                 <div class="col-md-4">
@@ -512,44 +641,46 @@
                                 </div>
                             }
                         </div>
-                        <div class="modal-footer">
-                            <!-- Borrowing History Button -->
-                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#borrowingHistoryModal-@item.BookID">
-                                <i class="fa-solid fa-history mr-2"></i>Borrowing History
-                            </button>
-
-                            <!-- Review Button/Form -->
-                            <button type="button" class="btn btn-warning" data-toggle="collapse" data-target="#reviewForm-@item.BookID">
-                                <i class="fa-solid fa-star mr-2"></i>Write a Review
-                            </button>
-
-                            @if (item.Status == "Available")
-                            {
-                                <button type="button" class="btn btn-success" data-toggle="collapse" data-target="#borrowForm-@item.BookID">
-                                    <i class="fa-solid fa-book-reader mr-2"></i>Borrow Book
+                        <div class="modal-footer" style="border-top: 1px solid #E5E7EB; padding: 1.5rem 2rem;">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <!-- Borrowing History Button -->
+                                <button type="button" class="btn" style="background: #68BEB2; color: white; border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#borrowingHistoryModal-@item.BookID">
+                                    <i class="fa-solid fa-history me-2"></i>Borrowing History
                                 </button>
-                            }
-                            else
-                            {
-                                <button type="button" class="btn btn-secondary" disabled>
-                                    <i class="fa-solid fa-ban mr-2"></i>Currently Unavailable
-                                </button>
-                            }
 
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <a asp-action="Edit" asp-route-id="@item.BookID" class="btn btn-primary">
-                                    <i class="fa-solid fa-edit mr-2"></i>Edit
-                                </a>
-                                <form asp-action="Delete" asp-route-id="@item.BookID" method="post" onsubmit="return confirm('Are you sure you want to delete this book?');" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-danger">
-                                        <i class="fa-solid fa-trash mr-2"></i>Delete
+                                <!-- Review Button/Form -->
+                                <button type="button" class="btn" style="background: #F59E0B; color: white; border-radius: 8px;" data-bs-toggle="collapse" data-bs-target="#reviewForm-@item.BookID" aria-expanded="false" aria-controls="reviewForm-@item.BookID">
+                                    <i class="fa-solid fa-star me-2"></i>Write a Review
+                                </button>
+
+                                @if (item.Status == "Available")
+                                {
+                                    <button type="button" class="btn" style="background: #10B981; color: white; border-radius: 8px;" data-bs-toggle="collapse" data-bs-target="#borrowForm-@item.BookID" aria-expanded="false" aria-controls="borrowForm-@item.BookID">
+                                        <i class="fa-solid fa-book-reader me-2"></i>Borrow Book
                                     </button>
-                                </form>
-                            }
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn" style="background: #C3C3C3; color: white; border-radius: 8px;" disabled>
+                                        <i class="fa-solid fa-ban me-2"></i>Currently Unavailable
+                                    </button>
+                                }
 
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                @if (User.IsInRole("Admin"))
+                                {
+                                    <a asp-action="Edit" asp-route-id="@item.BookID" class="btn" style="background: #FF8223; color: white; border-radius: 8px; text-decoration: none;">
+                                        <i class="fa-solid fa-edit me-2"></i>Edit
+                                    </a>
+                                    <form asp-action="Delete" asp-route-id="@item.BookID" method="post" onsubmit="return confirm('Are you sure you want to delete this book?');" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn" style="background: #EF4444; color: white; border-radius: 8px;">
+                                            <i class="fa-solid fa-trash me-2"></i>Delete
+                                        </button>
+                                    </form>
+                                }
+
+                                <button type="button" class="btn" style="background: #C3C3C3; color: white; border-radius: 8px;" data-bs-dismiss="modal">Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -558,14 +689,12 @@
             <!-- Borrowing History Modal -->
             <div class="modal fade" id="borrowingHistoryModal-@item.BookID" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header bg-info text-white">
+                    <div class="modal-content" style="border-radius: 16px; border: none; overflow: hidden;">
+                        <div class="modal-header" style="background: linear-gradient(135deg, #68BEB2 0%, #2A5C55 100%); color: white;">
                             <h5 class="modal-title">
-                                <i class="fa-solid fa-history mr-2"></i>Borrowing History - @item.Title
+                                <i class="fa-solid fa-history me-2"></i>Borrowing History - @item.Title
                             </h5>
-                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             @{
@@ -668,8 +797,8 @@
                                 </div>
                             }
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <div class="modal-footer" style="border-top: 1px solid #E5E7EB;">
+                            <button type="button" class="btn" style="background: #C3C3C3; color: white; border-radius: 8px;" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

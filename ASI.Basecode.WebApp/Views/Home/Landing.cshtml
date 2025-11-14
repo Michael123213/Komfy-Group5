@@ -1,0 +1,2399 @@
+@using static ASI.Basecode.Resources.Views.Screen
+@{
+    ViewBag.LoginView = true;
+    ViewData["Title"] = "KOZY - Library Sorting System";
+}
+
+<style>
+    /* CRITICAL: Remove scrollbar from body and html when landing page is present */
+    body:has(#landing-page),
+    html:has(#landing-page),
+    body .auth-container:has(#landing-page),
+    html .auth-container:has(#landing-page) {
+        overflow: visible !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+    
+    /* Override ALL layout wrapper styles for landing page - using ID for specificity */
+    #landing-page,
+    #landing-page ~ *,
+    .auth-container #landing-page,
+    .kozy-main-content #landing-page,
+    .kozy-content-wrapper #landing-page,
+    main #landing-page {
+        margin-left: 0 !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Override .main class from style.css - target parent containers */
+    body:has(#landing-page) .main,
+    body:has(#landing-page) main,
+    body:has(#landing-page) .main-container,
+    .auth-container:has(#landing-page),
+    .auth-container:has(#landing-page) main,
+    .auth-container:has(#landing-page) .main {
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-height: none !important;
+    }
+    
+    /* Additional specific overrides for main element and .main class */
+    body:has(#landing-page) main,
+    .auth-container:has(#landing-page) main,
+    main:has(#landing-page),
+    main .kozy-landing,
+    body:has(#landing-page) .main,
+    .auth-container:has(#landing-page) .main {
+        height: auto !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        padding: 0 !important;
+        max-height: none !important;
+    }
+    
+    /* Direct override for auth-container - ensure no scrollbar - MULTIPLE SELECTORS FOR MAXIMUM SPECIFICITY */
+    .auth-container:has(#landing-page),
+    .auth-container.landing-page-container,
+    body .auth-container:has(#landing-page),
+    body .auth-container.landing-page-container,
+    html body .auth-container:has(#landing-page),
+    html body .auth-container.landing-page-container,
+    .auth-container #landing-page {
+        padding: 0 !important;
+        display: block !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        min-height: auto !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* Force remove scrollbar from any element that might contain the landing page */
+    *:has(#landing-page) {
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* Hide scrollbars using webkit scrollbar properties - NUCLEAR OPTION */
+    body:has(#landing-page) *,
+    html:has(#landing-page) *,
+    .auth-container:has(#landing-page) *,
+    .auth-container.landing-page-container * {
+        scrollbar-width: none !important; /* Firefox */
+        -ms-overflow-style: none !important; /* IE and Edge */
+    }
+    
+    body:has(#landing-page) *::-webkit-scrollbar,
+    html:has(#landing-page) *::-webkit-scrollbar,
+    .auth-container:has(#landing-page) *::-webkit-scrollbar,
+    .auth-container.landing-page-container *::-webkit-scrollbar {
+        display: none !important; /* Chrome, Safari, Opera */
+        width: 0 !important;
+        height: 0 !important;
+    }
+    
+    /* Override body and html for landing page */
+    body:has(#landing-page),
+    html:has(#landing-page) {
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+    }
+    
+    /* Fallback: Direct parent targeting */
+    #landing-page {
+        position: relative;
+    }
+    
+    /* Force remove scrollbar from any main element or .main class on landing page */
+    .auth-container main,
+    .auth-container .main,
+    main[role="main"]:has(#landing-page),
+    .main:has(#landing-page) {
+        height: auto !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        padding: 0 !important;
+        max-height: none !important;
+    }
+
+    .kozy-landing {
+        min-height: 100vh;
+        max-height: fit-content;
+        background: linear-gradient(135deg, #FDFBF2 0%, #E1D1AB 50%, #FDFBF2 100%);
+        background-attachment: fixed;
+        position: relative;
+        overflow: visible !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0;
+        padding: 0;
+        padding-bottom: 100px !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Extend background to cover any white space */
+    body:has(#landing-page),
+    html:has(#landing-page) {
+        background: linear-gradient(135deg, #FDFBF2 0%, #E1D1AB 50%, #FDFBF2 100%) !important;
+        background-attachment: fixed !important;
+    }
+
+    /* Enhanced Animated Background Elements */
+    .kozy-landing::before {
+        content: '';
+        position: absolute;
+        top: -15%;
+        left: -8%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(255, 130, 35, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 12s ease-in-out infinite;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .kozy-landing::after {
+        content: '';
+        position: absolute;
+        bottom: -15%;
+        right: -5%;
+        width: 450px;
+        height: 450px;
+        background: radial-gradient(circle, rgba(104, 190, 178, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 15s ease-in-out infinite reverse;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .kozy-bg-shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.25;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .kozy-bg-shape-1 {
+        width: 300px;
+        height: 300px;
+        background: #FF8223;
+        top: 20%;
+        right: 10%;
+        animation: float 10s ease-in-out infinite;
+    }
+
+    .kozy-bg-shape-2 {
+        width: 250px;
+        height: 250px;
+        background: #68BEB2;
+        bottom: 30%;
+        left: 15%;
+        animation: float 8s ease-in-out infinite reverse;
+    }
+
+    .kozy-bg-shape-3 {
+        width: 200px;
+        height: 200px;
+        background: #FFA45F;
+        top: 60%;
+        left: 5%;
+        animation: float 14s ease-in-out infinite;
+    }
+
+    .kozy-bg-shape-4 {
+        width: 180px;
+        height: 180px;
+        background: #2A5C55;
+        top: 40%;
+        right: 20%;
+        animation: float 11s ease-in-out infinite reverse;
+    }
+
+    .kozy-bg-shape-5 {
+        width: 150px;
+        height: 150px;
+        background: #FF8223;
+        bottom: 10%;
+        right: 30%;
+        animation: float 9s ease-in-out infinite;
+    }
+
+    /* Additional Animated Shapes */
+    .kozy-bg-shape-6 {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #FF8223 0%, #FFA45F 100%);
+        top: 15%;
+        left: 25%;
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        animation: morphShape 15s ease-in-out infinite, float 12s ease-in-out infinite;
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .kozy-bg-shape-7 {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #68BEB2 0%, #2A5C55 100%);
+        bottom: 20%;
+        left: 40%;
+        border-radius: 50%;
+        animation: pulse 4s ease-in-out infinite, float 10s ease-in-out infinite reverse;
+        opacity: 0.35;
+        pointer-events: none;
+    }
+
+    .kozy-bg-shape-8 {
+        width: 80px;
+        height: 80px;
+        background: #FFA45F;
+        top: 70%;
+        right: 15%;
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        animation: rotate 20s linear infinite, float 8s ease-in-out infinite;
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .kozy-bg-shape-9 {
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(45deg, rgba(255, 130, 35, 0.2) 0%, rgba(104, 190, 178, 0.2) 100%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        animation: expand 8s ease-in-out infinite;
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    /* Particle System */
+    .kozy-particles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .kozy-particle {
+        position: absolute;
+        background: rgba(255, 130, 35, 0.5);
+        border-radius: 50%;
+        animation: particleFloat 20s infinite linear;
+        bottom: -10px;
+    }
+
+    .kozy-particle:nth-child(1) { width: 4px; height: 4px; left: 10%; animation-delay: 0s; animation-duration: 15s; }
+    .kozy-particle:nth-child(2) { width: 6px; height: 6px; left: 20%; animation-delay: 2s; animation-duration: 18s; background: rgba(104, 190, 178, 0.5); }
+    .kozy-particle:nth-child(3) { width: 3px; height: 3px; left: 30%; animation-delay: 4s; animation-duration: 20s; }
+    .kozy-particle:nth-child(4) { width: 5px; height: 5px; left: 40%; animation-delay: 1s; animation-duration: 16s; background: rgba(255, 164, 95, 0.5); }
+    .kozy-particle:nth-child(5) { width: 4px; height: 4px; left: 50%; animation-delay: 3s; animation-duration: 19s; }
+    .kozy-particle:nth-child(6) { width: 6px; height: 6px; left: 60%; animation-delay: 5s; animation-duration: 17s; background: rgba(104, 190, 178, 0.5); }
+    .kozy-particle:nth-child(7) { width: 3px; height: 3px; left: 70%; animation-delay: 2.5s; animation-duration: 21s; }
+    .kozy-particle:nth-child(8) { width: 5px; height: 5px; left: 80%; animation-delay: 4.5s; animation-duration: 18s; background: rgba(255, 130, 35, 0.5); }
+    .kozy-particle:nth-child(9) { width: 4px; height: 4px; left: 90%; animation-delay: 1.5s; animation-duration: 16s; }
+    .kozy-particle:nth-child(10) { width: 6px; height: 6px; left: 15%; animation-delay: 3.5s; animation-duration: 20s; background: rgba(104, 190, 178, 0.5); }
+    .kozy-particle:nth-child(11) { width: 3px; height: 3px; left: 25%; animation-delay: 0.5s; animation-duration: 17s; }
+    .kozy-particle:nth-child(12) { width: 5px; height: 5px; left: 35%; animation-delay: 2.8s; animation-duration: 19s; background: rgba(255, 164, 95, 0.5); }
+    .kozy-particle:nth-child(13) { width: 4px; height: 4px; left: 45%; animation-delay: 4.2s; animation-duration: 18s; }
+    .kozy-particle:nth-child(14) { width: 6px; height: 6px; left: 55%; animation-delay: 1.2s; animation-duration: 16s; background: rgba(104, 190, 178, 0.5); }
+    .kozy-particle:nth-child(15) { width: 3px; height: 3px; left: 65%; animation-delay: 3.8s; animation-duration: 20s; }
+
+    /* Floating Geometric Shapes */
+    .kozy-geometric-shape {
+        position: absolute;
+        opacity: 0.2;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .kozy-geometric-1 {
+        width: 60px;
+        height: 60px;
+        background: #FF8223;
+        top: 25%;
+        right: 25%;
+        clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+        animation: rotate 25s linear infinite, float 11s ease-in-out infinite;
+    }
+
+    .kozy-geometric-2 {
+        width: 40px;
+        height: 40px;
+        background: #68BEB2;
+        bottom: 35%;
+        left: 30%;
+        clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        animation: rotate 30s linear infinite reverse, float 9s ease-in-out infinite reverse;
+    }
+
+    .kozy-geometric-3 {
+        width: 50px;
+        height: 50px;
+        background: #FFA45F;
+        top: 55%;
+        right: 40%;
+        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        animation: rotate 35s linear infinite, float 13s ease-in-out infinite;
+    }
+
+    /* Animated Gradient Orbs */
+    .kozy-gradient-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.6;
+        z-index: 0;
+        animation: gradientMove 20s ease-in-out infinite;
+        pointer-events: none;
+    }
+
+    .kozy-gradient-orb-1 {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 130, 35, 0.8) 0%, rgba(255, 130, 35, 0) 70%);
+        top: -10%;
+        left: -5%;
+        animation: gradientMove 25s ease-in-out infinite;
+    }
+
+    .kozy-gradient-orb-2 {
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(circle, rgba(104, 190, 178, 0.8) 0%, rgba(104, 190, 178, 0) 70%);
+        bottom: -10%;
+        right: -5%;
+        animation: gradientMove 30s ease-in-out infinite reverse;
+    }
+
+    .kozy-gradient-orb-3 {
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 164, 95, 0.7) 0%, rgba(255, 164, 95, 0) 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: gradientMove 22s ease-in-out infinite;
+    }
+
+    @@keyframes float {
+        0%, 100% { 
+            transform: translateY(0px) translateX(0px) rotate(0deg);
+        }
+        33% { 
+            transform: translateY(-30px) translateX(20px) rotate(5deg);
+        }
+        66% { 
+            transform: translateY(20px) translateX(-15px) rotate(-5deg);
+        }
+    }
+
+    @@keyframes morphShape {
+        0%, 100% {
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        }
+        25% {
+            border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
+        }
+        50% {
+            border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
+        }
+        75% {
+            border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
+        }
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 0.15;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 0.25;
+        }
+    }
+
+    @@keyframes expand {
+        0%, 100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.08;
+        }
+        50% {
+            transform: translate(-50%, -50%) scale(1.3);
+            opacity: 0.15;
+        }
+    }
+
+    @@keyframes particleFloat {
+        0% {
+            transform: translateY(100vh) translateX(0) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.3;
+        }
+        90% {
+            opacity: 0.3;
+        }
+        100% {
+            transform: translateY(-100px) translateX(50px) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    @@keyframes gradientMove {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+        }
+        33% {
+            transform: translate(30px, -30px) scale(1.1);
+        }
+        66% {
+            transform: translate(-20px, 20px) scale(0.9);
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @@keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @@keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Fixed Navigation Bar */
+    .kozy-landing-header {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(15px);
+        padding: 1.25rem 2rem;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        z-index: 1000 !important;
+        border-bottom: 1px solid rgba(255, 130, 35, 0.15);
+        transition: all 0.3s ease;
+        transform: translateZ(0);
+        will-change: transform;
+    }
+
+    .kozy-landing-header.scrolled {
+        box-shadow: 0 6px 40px rgba(0, 0, 0, 0.12);
+        padding: 1rem 2rem;
+    }
+
+    .kozy-landing-nav {
+        display: flex;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+        gap: 0;
+    }
+
+    .kozy-landing-logo {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2F3030;
+        letter-spacing: -1px;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-shrink: 0;
+        margin-right: 0;
+    }
+
+    .kozy-landing-logo::before {
+        content: '';
+        width: 3px;
+        height: 50px;
+        background: linear-gradient(180deg, #68BEB2 0%, #FF8223 100%);
+        border-radius: 2px;
+        display: block;
+    }
+
+    .kozy-landing-nav-links {
+        display: flex;
+        gap: 2.5rem;
+        list-style: none;
+        margin: 0 auto;
+        padding: 0;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .kozy-landing-nav-links a {
+        color: #6B7280;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+        font-size: 1rem;
+    }
+
+    .kozy-landing-nav-links a::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #FF8223;
+        transition: width 0.3s ease;
+    }
+
+    .kozy-landing-nav-links a:hover {
+        color: #FF8223;
+    }
+
+    .kozy-landing-nav-links a:hover::after {
+        width: 100%;
+    }
+
+    .kozy-landing-actions {
+        display: flex;
+        gap: 1rem;
+        flex-shrink: 0;
+        margin-left: 0;
+    }
+
+    .kozy-btn-login-nav, .kozy-btn-signup-nav {
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+        font-size: 1rem;
+    }
+
+    .kozy-btn-login-nav {
+        background: #FF8223;
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 130, 35, 0.3);
+    }
+
+    .kozy-btn-login-nav:hover {
+        background: #FFA45F;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 130, 35, 0.4);
+    }
+
+    .kozy-btn-signup-nav {
+        background: #68BEB2;
+        color: white;
+        box-shadow: 0 4px 15px rgba(104, 190, 178, 0.3);
+    }
+
+    .kozy-btn-signup-nav:hover {
+        background: #2A5C55;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(104, 190, 178, 0.4);
+    }
+
+    /* Hero Section */
+    .kozy-hero {
+        width: 100%;
+        padding: 8rem 4rem 6rem 4rem;
+        position: relative;
+        z-index: 10;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 5rem;
+        align-items: center;
+        min-height: calc(100vh - 80px);
+        max-width: 1600px;
+        margin: 0 auto;
+        overflow: visible !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+    }
+    
+    /* Ensure all content sections are above animations */
+    .kozy-landing-header,
+    .kozy-hero,
+    .kozy-about-section,
+    .kozy-section,
+    .kozy-social {
+        position: relative;
+        z-index: 10;
+    }
+
+    .kozy-hero-content {
+        animation: fadeInUp 1s ease-out;
+    }
+
+    .kozy-hero-content h1 {
+        font-family: 'Dancing Script', cursive;
+        font-size: 5rem;
+        font-weight: 400;
+        color: #2F3030;
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+        background: linear-gradient(135deg, #2F3030 0%, #FF8223 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fadeInUp 1s ease-out 0.2s both;
+    }
+
+    .kozy-hero-content h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #6B7280;
+        margin-bottom: 0.75rem;
+        animation: fadeInUp 1s ease-out 0.4s both;
+    }
+
+    .kozy-hero-content h3 {
+        font-size: 6rem;
+        font-weight: 700;
+        color: #2F3030;
+        margin-bottom: 1.5rem;
+        line-height: 1;
+        letter-spacing: -2px;
+        position: relative;
+        display: inline-block;
+        animation: fadeInUp 1s ease-out 0.6s both;
+    }
+
+    .kozy-hero-content h3::after {
+        content: '';
+        position: absolute;
+        bottom: 0.2em;
+        left: 0;
+        width: 100%;
+        height: 0.15em;
+        background: linear-gradient(90deg, #FF8223 0%, #68BEB2 100%);
+        border-radius: 2px;
+        opacity: 0.3;
+    }
+
+    .kozy-hero-icon {
+        text-align: center;
+        margin: 2rem 0;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .kozy-hero-icon i {
+        font-size: 4rem;
+        color: #FF8223;
+        opacity: 0.8;
+    }
+
+    .kozy-hero-tagline {
+        font-size: 1.25rem;
+        color: #6B7280;
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-weight: 500;
+    }
+
+    .kozy-featured-book {
+        background: white;
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 130, 35, 0.1);
+        text-align: center;
+        animation: slideInRight 1s ease-out 0.3s both;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        display: flex;
+        flex-direction: column;
+        align-self: start;
+        min-height: fit-content;
+        height: fit-content;
+    }
+
+    .kozy-featured-book:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 130, 35, 0.2);
+    }
+
+    .kozy-featured-book::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #FF8223 0%, #FFA45F 50%, #68BEB2 100%);
+    }
+
+    .kozy-featured-book::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 130, 35, 0.05) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+        pointer-events: none;
+    }
+
+    @@keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .kozy-featured-book h4 {
+        font-style: italic;
+        margin-bottom: 2rem;
+        color: #2F3030;
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    .kozy-featured-book-cover {
+        width: 100%;
+        height: 350px;
+        min-height: 350px;
+        max-height: 350px;
+        background: linear-gradient(135deg, #C3C3C3 0%, #E1D1AB 100%);
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .kozy-featured-book:hover .kozy-featured-book-cover {
+        transform: scale(1.05);
+    }
+
+    .kozy-featured-book-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* About Us Section */
+    .kozy-about-section {
+        width: 100%;
+        padding: 6rem 4rem;
+        position: relative;
+        z-index: 10;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .kozy-about-container {
+        background: white;
+        border-radius: 32px;
+        padding: 4rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 130, 35, 0.1);
+        position: relative;
+        overflow: hidden;
+        animation: fadeInUp 1s ease-out;
+        transition: all 0.4s ease;
+    }
+
+    .kozy-about-container:hover {
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 130, 35, 0.2);
+        transform: translateY(-4px);
+    }
+
+    .kozy-about-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #FF8223 0%, #FFA45F 30%, #68BEB2 60%, #2A5C55 100%);
+    }
+
+    .kozy-about-container::after {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(104, 190, 178, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 15s ease-in-out infinite;
+        pointer-events: none;
+    }
+
+    .kozy-about-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .kozy-about-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2F3030;
+        margin-bottom: 1rem;
+        position: relative;
+        display: inline-block;
+    }
+
+    .kozy-about-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, #FF8223, #68BEB2);
+        border-radius: 2px;
+    }
+
+    .kozy-about-content {
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: #4B5563;
+        text-align: justify;
+        margin-bottom: 3rem;
+    }
+
+    .kozy-about-features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .kozy-about-feature {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, rgba(255, 130, 35, 0.05) 0%, rgba(104, 190, 178, 0.05) 100%);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .kozy-about-feature:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .kozy-about-feature-icon {
+        font-size: 3rem;
+        color: #FF8223;
+        margin-bottom: 1rem;
+    }
+
+    .kozy-about-feature h4 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 0.5rem;
+    }
+
+    .kozy-about-feature p {
+        font-size: 0.95rem;
+        color: #6B7280;
+        line-height: 1.6;
+    }
+
+    /* Section Styles */
+    .kozy-section {
+        width: 100%;
+        padding: 5rem 4rem;
+        position: relative;
+        z-index: 10;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .kozy-section-title {
+        font-size: 2.5rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 3rem;
+        text-align: center;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .kozy-books-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 2rem;
+    }
+
+    .kozy-book-card-landing {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(255, 130, 35, 0.05);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        animation: fadeInUp 0.8s ease-out;
+        position: relative;
+    }
+
+    .kozy-book-card-landing::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #FF8223, #68BEB2);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+    }
+
+    .kozy-book-card-landing:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 130, 35, 0.15);
+    }
+
+    .kozy-book-card-landing:hover::before {
+        transform: scaleX(1);
+    }
+
+    .kozy-book-cover-landing {
+        width: 100%;
+        height: 280px;
+        background: linear-gradient(135deg, #C3C3C3 0%, #E1D1AB 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .kozy-book-cover-landing::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.1) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .kozy-book-card-landing:hover .kozy-book-cover-landing::after {
+        opacity: 1;
+    }
+
+    .kozy-book-cover-landing img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .kozy-book-info-landing {
+        padding: 1.5rem;
+    }
+
+    .kozy-book-title-landing {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .kozy-book-author-landing {
+        font-size: 0.875rem;
+        color: #6B7280;
+    }
+
+    /* Modal Styles */
+    .kozy-modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        z-index: 10000;
+        align-items: flex-start;
+        justify-content: center;
+        animation: fadeInUp 0.3s ease-out;
+        padding: 2rem 0;
+    }
+
+    .kozy-modal-overlay.active {
+        display: flex;
+    }
+
+    .kozy-modal {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 1000px;
+        width: 90%;
+        position: relative;
+        animation: modalFadeIn 0.3s ease-out;
+        display: flex;
+        min-height: 600px;
+        margin: 2rem 0;
+        overflow: visible;
+    }
+
+    .kozy-modal-close {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: rgba(0, 0, 0, 0.1);
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10001;
+        transition: all 0.3s ease;
+        color: #2F3030;
+        font-size: 1.25rem;
+    }
+
+    .kozy-modal-close:hover {
+        background: rgba(255, 130, 35, 0.2);
+        color: #FF8223;
+        transform: rotate(90deg);
+    }
+
+    .kozy-modal-form-section {
+        flex: 1;
+        padding: 3.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow: visible;
+    }
+
+    .kozy-modal-logo-section {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        background: linear-gradient(135deg, #FF8223 0%, #FFA45F 100%);
+        min-height: 600px;
+        border-radius: 0 24px 24px 0;
+    }
+
+    .kozy-modal-logo-section-content {
+        text-align: center;
+    }
+
+    .kozy-modal-logo-section-content i {
+        font-size: 10rem;
+        color: rgba(255, 255, 255, 0.25);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .kozy-form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .kozy-form-header-logo {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2F3030;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+    }
+
+    .kozy-form-header-tagline {
+        color: #6B7280;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .kozy-form-group {
+        margin-bottom: 1.75rem;
+    }
+
+    .kozy-form-label {
+        display: block;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: #2F3030;
+        font-size: 0.875rem;
+    }
+
+    .kozy-form-input-wrapper {
+        position: relative;
+    }
+
+    .kozy-form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #C3C3C3;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+        color: #2F3030;
+        box-sizing: border-box;
+    }
+
+    .kozy-form-input:focus {
+        outline: none;
+        border-color: #FF8223;
+        box-shadow: 0 0 0 3px rgba(255, 130, 35, 0.1);
+    }
+
+    .kozy-form-input::placeholder {
+        color: #9CA3AF;
+    }
+
+    .kozy-password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6B7280;
+        transition: color 0.3s ease;
+    }
+
+    .kozy-password-toggle:hover {
+        color: #FF8223;
+    }
+
+    .kozy-btn-login, .kozy-btn-register {
+        width: 100%;
+        padding: 1rem;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 0.5rem;
+    }
+
+    .kozy-btn-login {
+        background: #FF8223;
+        box-shadow: 0 4px 15px rgba(255, 130, 35, 0.3);
+    }
+
+    .kozy-btn-login:hover {
+        background: #FFA45F;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 130, 35, 0.4);
+    }
+
+    .kozy-btn-register {
+        background: #68BEB2;
+        box-shadow: 0 4px 15px rgba(104, 190, 178, 0.3);
+    }
+
+    .kozy-btn-register:hover {
+        background: #2A5C55;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(104, 190, 178, 0.4);
+    }
+
+    .kozy-forgot-link {
+        color: #6B7280;
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.3s ease;
+    }
+
+    .kozy-forgot-link:hover {
+        color: #FF8223;
+    }
+
+    .kozy-signup-section, .kozy-back-section {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    .kozy-signup-text {
+        color: #6B7280;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+
+    .kozy-btn-signup, .kozy-btn-back {
+        padding: 1rem 2rem;
+        background: #68BEB2;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(104, 190, 178, 0.3);
+        cursor: pointer;
+    }
+
+    .kozy-btn-signup:hover {
+        background: #2A5C55;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(104, 190, 178, 0.4);
+        color: white;
+    }
+
+    .kozy-btn-back {
+        background: transparent;
+        color: #2F3030;
+        box-shadow: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .kozy-btn-back:hover {
+        background: transparent;
+        color: #FF8223;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .kozy-error-message {
+        color: #EF4444;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .kozy-social {
+        text-align: center;
+        margin-top: 4rem;
+        padding: 6rem 2rem 8rem 2rem;
+        margin-bottom: 0 !important;
+        padding-bottom: 8rem !important;
+        color: #6B7280;
+        font-size: 1rem;
+        position: relative;
+        z-index: 10;
+        min-height: 400px;
+    }
+    
+    /* Remove extra white space from landing page bottom */
+    .kozy-landing {
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+        min-height: auto !important;
+        max-height: fit-content !important;
+    }
+    
+    .kozy-landing > *:last-child {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    /* Ensure social section has no bottom spacing */
+    .kozy-social:last-child,
+    .kozy-landing > .kozy-social {
+        margin-bottom: 0 !important;
+        padding-bottom: 0.5rem !important;
+    }
+    
+    /* Ensure landing page doesn't extend beyond content but extend background */
+    body:has(#landing-page),
+    html:has(#landing-page) {
+        height: auto !important;
+        min-height: 100vh !important;
+        max-height: none !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+        background: linear-gradient(135deg, #FDFBF2 0%, #E1D1AB 50%, #FDFBF2 100%) !important;
+        background-attachment: fixed !important;
+    }
+
+    .kozy-social p {
+        margin-bottom: 2.5rem;
+        font-weight: 500;
+        font-size: 1.25rem;
+    }
+
+    .kozy-social-icons {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .kozy-social-icon {
+        width: 60px;
+        height: 60px;
+        background: #2F3030;
+        color: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1.5rem;
+    }
+
+    .kozy-social-icon:hover {
+        background: #FF8223;
+        transform: translateY(-6px) rotate(5deg);
+        box-shadow: 0 8px 20px rgba(255, 130, 35, 0.3);
+        color: white;
+    }
+
+    @@media (max-width: 991px) {
+        .kozy-modal-logo-section {
+            display: none;
+        }
+
+        .kozy-modal {
+            max-width: 500px;
+        }
+
+        .kozy-modal-form-section {
+            padding: 2.5rem;
+        }
+
+        .kozy-landing-nav-links {
+            gap: 1.5rem;
+        }
+    }
+
+    @@media (max-width: 1200px) {
+        .kozy-hero {
+            padding: 8rem 3rem 6rem 3rem;
+        }
+
+        .kozy-section, .kozy-about-section {
+            padding: 5rem 3rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .kozy-hero {
+            grid-template-columns: 1fr;
+            gap: 3rem;
+            padding: 6rem 2rem 4rem 2rem;
+        }
+
+        .kozy-hero-content h1 {
+            font-size: 3.5rem;
+        }
+
+        .kozy-hero-content h3 {
+            font-size: 4rem;
+        }
+
+        .kozy-landing-nav-links {
+            display: none;
+        }
+
+        .kozy-landing-actions {
+            gap: 0.5rem;
+        }
+
+        .kozy-btn-login-nav, .kozy-btn-signup-nav {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+        }
+
+        .kozy-books-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .kozy-about-container {
+            padding: 2.5rem;
+        }
+
+        .kozy-about-title {
+            font-size: 2rem;
+        }
+
+        .kozy-about-features {
+            grid-template-columns: 1fr;
+        }
+
+        .kozy-section, .kozy-about-section {
+            padding: 4rem 2rem;
+        }
+    }
+</style>
+
+<div class="kozy-landing" id="landing-page">
+    <!-- Animated Gradient Orbs -->
+    <div class="kozy-gradient-orb kozy-gradient-orb-1"></div>
+    <div class="kozy-gradient-orb kozy-gradient-orb-2"></div>
+    <div class="kozy-gradient-orb kozy-gradient-orb-3"></div>
+    
+    <!-- Floating Background Shapes -->
+    <div class="kozy-bg-shape kozy-bg-shape-1"></div>
+    <div class="kozy-bg-shape kozy-bg-shape-2"></div>
+    <div class="kozy-bg-shape kozy-bg-shape-3"></div>
+    <div class="kozy-bg-shape kozy-bg-shape-4"></div>
+    <div class="kozy-bg-shape kozy-bg-shape-5"></div>
+    <div class="kozy-bg-shape kozy-bg-shape-6"></div>
+    <div class="kozy-bg-shape kozy-bg-shape-7"></div>
+    <div class="kozy-bg-shape kozy-bg-shape-8"></div>
+    <div class="kozy-bg-shape kozy-bg-shape-9"></div>
+    
+    <!-- Geometric Shapes -->
+    <div class="kozy-geometric-shape kozy-geometric-1"></div>
+    <div class="kozy-geometric-shape kozy-geometric-2"></div>
+    <div class="kozy-geometric-shape kozy-geometric-3"></div>
+    
+    <!-- Particle System -->
+    <div class="kozy-particles">
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+        <div class="kozy-particle"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="kozy-landing-header">
+        <nav class="kozy-landing-nav">
+            <div class="kozy-landing-logo">KOZY.</div>
+            <ul class="kozy-landing-nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#contact">Contact Us</a></li>
+            </ul>
+            <div class="kozy-landing-actions">
+                <button class="kozy-btn-login-nav" onclick="openLoginModal()">Login</button>
+                <button class="kozy-btn-signup-nav" onclick="openRegisterModal()">Sign Up</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="kozy-hero" id="home">
+        <div class="kozy-hero-content">
+            <h1 class="kozy-script">Welcome</h1>
+            <h2>To</h2>
+            <h3>KOZY.</h3>
+            <div class="kozy-hero-icon">
+                <i class="fa-solid fa-book-open"></i>
+            </div>
+            <p class="kozy-hero-tagline">A LIBRARY SORTING SYSTEM</p>
+        </div>
+        <div class="kozy-featured-book">
+            <h4>Featured Book</h4>
+            @{
+                var featuredBook = ViewBag.FeaturedBooks != null && ((List<ASI.Basecode.Services.ServiceModels.BookModel>)ViewBag.FeaturedBooks).Any() 
+                    ? ((List<ASI.Basecode.Services.ServiceModels.BookModel>)ViewBag.FeaturedBooks).First() 
+                    : null;
+            }
+            @if (featuredBook != null)
+            {
+                <div class="kozy-featured-book-cover">
+                    @if (!string.IsNullOrEmpty(featuredBook.CoverImagePath))
+                    {
+                        <img src="@featuredBook.CoverImagePath" alt="@featuredBook.Title" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-book text-white" style="font-size: 5rem;"></i>
+                    }
+                </div>
+                <h5 style="font-weight: 600; color: #FF8223; margin-bottom: 0.5rem; font-size: 1.25rem;">@featuredBook.Title</h5>
+                <p style="color: #6B7280; font-size: 1rem;">@featuredBook.Author</p>
+            }
+            else
+            {
+                <div class="kozy-featured-book-cover">
+                    <i class="fa-solid fa-book text-white" style="font-size: 5rem;"></i>
+                </div>
+                <p style="color: #6B7280;">No featured books available</p>
+            }
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section class="kozy-about-section" id="about">
+        <div class="kozy-about-container">
+            <div class="kozy-about-header">
+                <h2 class="kozy-about-title">About KOZY</h2>
+            </div>
+            <div class="kozy-about-content">
+                <p>KOZY is a simple, modern, and user-friendly E-Library platform designed for the modern day reader, especially students and teachers. It offers powerful features like notifications to keep users updated, and an adaptable book filter by genre, author, date, and popularity. Users can rate and review books using a 5-star system. The borrowing system efficiently manages book loans, returns, and tracks borrowing history. KOZY also provides detailed reports on borrowed books, including due dates and pending returns. Overall, KOZY makes accessing and managing digital learning materials easy and efficient.</p>
+            </div>
+            <div class="kozy-about-features">
+                <div class="kozy-about-feature">
+                    <div class="kozy-about-feature-icon">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <h4>Smart Notifications</h4>
+                    <p>Stay updated with real-time notifications about your books and activities</p>
+                </div>
+                <div class="kozy-about-feature">
+                    <div class="kozy-about-feature-icon">
+                        <i class="fa-solid fa-filter"></i>
+                    </div>
+                    <h4>Advanced Filtering</h4>
+                    <p>Filter books by genre, author, date, and popularity with ease</p>
+                </div>
+                <div class="kozy-about-feature">
+                    <div class="kozy-about-feature-icon">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <h4>5-Star Reviews</h4>
+                    <p>Rate and review books to help others discover great reads</p>
+                </div>
+                <div class="kozy-about-feature">
+                    <div class="kozy-about-feature-icon">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                    </div>
+                    <h4>Borrowing System</h4>
+                    <p>Efficiently manage book loans, returns, and track your reading history</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Books Section -->
+    @if (ViewBag.FeaturedBooks != null && ((List<ASI.Basecode.Services.ServiceModels.BookModel>)ViewBag.FeaturedBooks).Any())
+    {
+        <section class="kozy-section">
+            <h2 class="kozy-section-title">Discover Our Collection</h2>
+            <div class="kozy-books-grid">
+                @foreach (var book in ((List<ASI.Basecode.Services.ServiceModels.BookModel>)ViewBag.FeaturedBooks).Take(4))
+                {
+                    <div class="kozy-book-card-landing">
+                        <div class="kozy-book-cover-landing">
+                            @if (!string.IsNullOrEmpty(book.CoverImagePath))
+                            {
+                                <img src="@book.CoverImagePath" alt="@book.Title" />
+                            }
+                            else
+                            {
+                                <i class="fa-solid fa-book text-white" style="font-size: 3.5rem;"></i>
+                            }
+                        </div>
+                        <div class="kozy-book-info-landing">
+                            <h3 class="kozy-book-title-landing">@book.Title</h3>
+                            <p class="kozy-book-author-landing">@book.Author</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <!-- Social Media Section -->
+    <div class="kozy-social" id="contact">
+        <p>Follow us on our social accounts</p>
+        <div class="kozy-social-icons">
+            <a href="#" class="kozy-social-icon">
+                <i class="fa-brands fa-facebook-f"></i>
+            </a>
+            <a href="#" class="kozy-social-icon">
+                <i class="fa-brands fa-instagram"></i>
+            </a>
+            <a href="#" class="kozy-social-icon">
+                <i class="fa-brands fa-x-twitter"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Login Modal -->
+<div class="kozy-modal-overlay" id="loginModal">
+    <div class="kozy-modal">
+        <button class="kozy-modal-close" onclick="closeModal('loginModal')">
+            <i class="fa-solid fa-times"></i>
+        </button>
+        <div class="kozy-modal-form-section">
+            <div class="kozy-form-header">
+                <div class="kozy-form-header-logo">KOZY.</div>
+                <div class="kozy-form-header-tagline">A LIBRARY SORTING SYSTEM</div>
+            </div>
+            
+            <form id="loginForm" method="post" action="/Account/Login">
+                @Html.AntiForgeryToken()
+                <div class="kozy-form-group">
+                    <label class="kozy-form-label" for="loginUserId">@UserId</label>
+                    <div class="kozy-form-input-wrapper">
+                        <input type="text" id="loginUserId" name="UserId" class="kozy-form-input" placeholder="Enter userid" required />
+                    </div>
+                    <span class="kozy-error-message" id="loginUserIdError"></span>
+                </div>
+                
+                <div class="kozy-form-group">
+                    <label class="kozy-form-label" for="loginPassword">@Password</label>
+                    <div class="kozy-form-input-wrapper">
+                        <input type="password" id="loginPassword" name="Password" class="kozy-form-input" placeholder="Enter password" required />
+                        <i class="fa-solid fa-eye-slash kozy-password-toggle" onclick="togglePassword('loginPassword', this)"></i>
+                    </div>
+                    <span class="kozy-error-message" id="loginPasswordError"></span>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <a class="kozy-forgot-link" href="/Account/ForgotPassword">
+                        @ForgotPass
+                    </a>
+                </div>
+                
+                <button class="kozy-btn-login" type="submit">
+                    @Login
+                </button>
+                
+                <div class="kozy-signup-section">
+                    <p class="kozy-signup-text">@DontHaveAcc</p>
+                    <button type="button" class="kozy-btn-signup" onclick="closeModal('loginModal'); openRegisterModal();">
+                        @CreateNew
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="kozy-modal-logo-section d-none d-lg-flex">
+            <div class="kozy-modal-logo-section-content">
+                <i class="fa-solid fa-book-open"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Register Modal -->
+<div class="kozy-modal-overlay" id="registerModal">
+    <div class="kozy-modal">
+        <button class="kozy-modal-close" onclick="closeModal('registerModal')">
+            <i class="fa-solid fa-times"></i>
+        </button>
+        <div class="kozy-modal-form-section">
+            <div class="kozy-form-header">
+                <div class="kozy-form-header-logo" style="color: #FF8223;">KOZY.</div>
+                <div class="kozy-form-header-tagline">Create Your Account</div>
+            </div>
+            
+            <form id="registerForm" method="post" action="/Account/Register">
+                @Html.AntiForgeryToken()
+                <div class="kozy-form-group">
+                    <label class="kozy-form-label" for="registerUserId">User ID</label>
+                    <div class="kozy-form-input-wrapper">
+                        <input type="text" id="registerUserId" name="UserId" class="kozy-form-input" placeholder="Enter userid" required />
+                    </div>
+                    <span class="kozy-error-message" id="registerUserIdError"></span>
+                </div>
+                
+                <div class="kozy-form-group">
+                    <label class="kozy-form-label" for="registerName">Name</label>
+                    <div class="kozy-form-input-wrapper">
+                        <input type="text" id="registerName" name="Name" class="kozy-form-input" placeholder="Enter name" required />
+                    </div>
+                    <span class="kozy-error-message" id="registerNameError"></span>
+                </div>
+                
+                <div class="kozy-form-group">
+                    <label class="kozy-form-label" for="registerEmail">Email</label>
+                    <div class="kozy-form-input-wrapper">
+                        <input type="email" id="registerEmail" name="Email" class="kozy-form-input" placeholder="Enter email" required />
+                    </div>
+                    <span class="kozy-error-message" id="registerEmailError"></span>
+                </div>
+                
+                <div class="kozy-form-group">
+                    <label class="kozy-form-label" for="registerPassword">Password</label>
+                    <div class="kozy-form-input-wrapper">
+                        <input type="password" id="registerPassword" name="Password" class="kozy-form-input" placeholder="Enter password" required />
+                        <i class="fa-solid fa-eye-slash kozy-password-toggle" onclick="togglePassword('registerPassword', this)"></i>
+                    </div>
+                    <span class="kozy-error-message" id="registerPasswordError"></span>
+                </div>
+                
+                <div class="kozy-form-group">
+                    <label class="kozy-form-label" for="registerConfirmPassword">Confirm Password</label>
+                    <div class="kozy-form-input-wrapper">
+                        <input type="password" id="registerConfirmPassword" name="ConfirmPassword" class="kozy-form-input" placeholder="Confirm Password" required />
+                        <i class="fa-solid fa-eye-slash kozy-password-toggle" onclick="togglePassword('registerConfirmPassword', this)"></i>
+                    </div>
+                    <span class="kozy-error-message" id="registerConfirmPasswordError"></span>
+                </div>
+                
+                <button class="kozy-btn-register" type="submit">
+                    Register
+                </button>
+                
+                <div class="kozy-back-section">
+                    <button type="button" class="kozy-btn-back" onclick="closeModal('registerModal'); openLoginModal();">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Login
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+ @section scripts {
+     <script>
+         // CRITICAL: Remove scrollbar from landing page - AGGRESSIVE VERSION
+         function removeLandingPageScrollbar() {
+             const landingPage = document.getElementById('landing-page');
+             if (!landingPage) return;
+             
+             // Function to check and fix an element
+             function fixElement(el) {
+                 if (!el || el === document || el === window) return;
+                 
+                 try {
+                     // EXCLUDE animation elements - don't modify them
+                     const isAnimationElement = el.classList.contains('kozy-bg-shape') ||
+                                               el.classList.contains('kozy-particle') ||
+                                               el.classList.contains('kozy-gradient-orb') ||
+                                               el.classList.contains('kozy-geometric-shape') ||
+                                               el.classList.contains('kozy-particles') ||
+                                               el.closest('.kozy-particles') !== null;
+                     
+                     if (isAnimationElement) {
+                         // Ensure animation elements remain visible
+                         el.style.setProperty('display', 'block', 'important');
+                         el.style.setProperty('visibility', 'visible', 'important');
+                         el.style.setProperty('opacity', '', 'important'); // Let CSS handle opacity
+                         return; // Don't modify animation elements
+                     }
+                     
+                     const computedStyle = window.getComputedStyle(el);
+                     
+                     // Check if element has scrollbar (scrollHeight > clientHeight with overflow scroll/auto)
+                     const hasScrollbar = (computedStyle.overflowY === 'scroll' || computedStyle.overflowY === 'auto') &&
+                                         el.scrollHeight > el.clientHeight;
+                     
+                     // Force remove ALL overflow properties that could cause scrollbars
+                     if (computedStyle.overflowY === 'scroll' || computedStyle.overflowY === 'auto' || hasScrollbar) {
+                         el.style.setProperty('overflow-y', 'visible', 'important');
+                         el.style.setProperty('overflow', 'visible', 'important');
+                         // Hide scrollbar using webkit properties
+                         el.style.setProperty('scrollbar-width', 'none', 'important');
+                         el.style.setProperty('-ms-overflow-style', 'none', 'important');
+                     }
+                     if (computedStyle.overflow === 'scroll' || computedStyle.overflow === 'auto') {
+                         el.style.setProperty('overflow', 'visible', 'important');
+                         el.style.setProperty('overflow-y', 'visible', 'important');
+                         el.style.setProperty('overflow-x', 'hidden', 'important');
+                         // Hide scrollbar using webkit properties
+                         el.style.setProperty('scrollbar-width', 'none', 'important');
+                         el.style.setProperty('-ms-overflow-style', 'none', 'important');
+                     }
+                     
+                     // ALWAYS hide scrollbars even if overflow is visible (in case it changes)
+                     el.style.setProperty('scrollbar-width', 'none', 'important');
+                     el.style.setProperty('-ms-overflow-style', 'none', 'important');
+                     
+                     // Add webkit scrollbar hiding via style tag if needed
+                     if (!el.hasAttribute('data-scrollbar-hidden')) {
+                         el.setAttribute('data-scrollbar-hidden', 'true');
+                         const styleId = 'scrollbar-hide-' + Math.random().toString(36).substr(2, 9);
+                         if (!document.getElementById(styleId)) {
+                             const style = document.createElement('style');
+                             style.id = styleId;
+                             style.textContent = `#${el.id || styleId}::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }`;
+                             document.head.appendChild(style);
+                         }
+                     }
+                     
+                     // Remove fixed heights that might cause scrollbars
+                     if (computedStyle.height && computedStyle.height !== 'auto') {
+                         if (computedStyle.height.includes('px')) {
+                             const heightValue = parseInt(computedStyle.height);
+                             // If height is less than viewport, it might be causing issues
+                             if (heightValue > 0 && heightValue < window.innerHeight * 1.5) {
+                                 el.style.setProperty('height', 'auto', 'important');
+                             }
+                         } else if (computedStyle.height.includes('vh')) {
+                             // Convert vh to check
+                             const vhValue = parseFloat(computedStyle.height);
+                             if (vhValue < 150) { // Less than 150vh
+                                 el.style.setProperty('height', 'auto', 'important');
+                             }
+                         }
+                     }
+                     
+                     // Ensure max-height doesn't restrict
+                     if (computedStyle.maxHeight && computedStyle.maxHeight !== 'none' && computedStyle.maxHeight !== '100%') {
+                         el.style.setProperty('max-height', 'none', 'important');
+                     }
+                 } catch (e) {
+                     // Ignore errors for elements we can't access
+                 }
+             }
+             
+             // Fix body and html first (highest priority)
+             fixElement(document.body);
+             fixElement(document.documentElement);
+             
+             // Fix all parent elements of landing page
+             let parent = landingPage.parentElement;
+             while (parent && parent !== document.body) {
+                 fixElement(parent);
+                 parent = parent.parentElement;
+             }
+             
+             // Fix all ancestors up to body
+             let current = landingPage;
+             while (current && current !== document.body) {
+                 fixElement(current);
+                 current = current.parentElement;
+             }
+             
+             // Also check common container classes
+             const commonSelectors = [
+                 '.auth-container',
+                 '.auth-container.landing-page-container',
+                 '.kozy-main-content',
+                 '.kozy-content-wrapper',
+                 'main',
+                 '.main',
+                 '.main-container',
+                 '.navcontainer',
+                 '.kozy-landing',
+                 '.kozy-hero',
+                 '.wrapper',
+                 '.container',
+                 '.container-fluid'
+             ];
+             
+             commonSelectors.forEach(selector => {
+                 try {
+                     const elements = document.querySelectorAll(selector);
+                     elements.forEach(el => {
+                         if (landingPage.contains(el) || el.contains(landingPage) || el === landingPage) {
+                             fixElement(el);
+                         }
+                     });
+                 } catch (e) {
+                     // Ignore selector errors
+                 }
+             });
+             
+             // NUCLEAR OPTION: Check ALL elements in the document
+             // Only check elements that are parents or ancestors of landing page
+             function checkAllElements(node) {
+                 if (!node || node.nodeType !== 1) return; // Only element nodes
+                 
+                 // Skip animation elements entirely
+                 const isAnimationElement = node.classList.contains('kozy-bg-shape') ||
+                                           node.classList.contains('kozy-particle') ||
+                                           node.classList.contains('kozy-gradient-orb') ||
+                                           node.classList.contains('kozy-geometric-shape') ||
+                                           node.classList.contains('kozy-particles');
+                 
+                 if (isAnimationElement) {
+                     // Ensure animation elements remain visible
+                     node.style.setProperty('display', 'block', 'important');
+                     node.style.setProperty('visibility', 'visible', 'important');
+                     return; // Don't process animation elements or their children
+                 }
+                 
+                 // Check if this node is related to landing page
+                 if (landingPage.contains(node) || node.contains(landingPage) || node === landingPage) {
+                     fixElement(node);
+                     
+                     // Check children
+                     Array.from(node.children).forEach(child => {
+                         checkAllElements(child);
+                     });
+                 }
+             }
+             
+             // Check all elements starting from body
+             checkAllElements(document.body);
+         }
+         
+         // DEBUG: Find which element has the scrollbar
+         function findScrollbarElement() {
+             const landingPage = document.getElementById('landing-page');
+             if (!landingPage) return null;
+             
+             function checkElement(el) {
+                 if (!el || el === document || el === window) return null;
+                 
+                 try {
+                     const style = window.getComputedStyle(el);
+                     const hasOverflow = style.overflowY === 'scroll' || style.overflowY === 'auto';
+                     const hasScrollbar = hasOverflow && el.scrollHeight > el.clientHeight;
+                     
+                     if (hasScrollbar) {
+                         console.log('SCROLLBAR FOUND ON:', el, {
+                             tagName: el.tagName,
+                             className: el.className,
+                             id: el.id,
+                             overflowY: style.overflowY,
+                             scrollHeight: el.scrollHeight,
+                             clientHeight: el.clientHeight,
+                             height: style.height
+                         });
+                         return el;
+                     }
+                     
+                     // Check children
+                     for (let child of el.children) {
+                         const result = checkElement(child);
+                         if (result) return result;
+                     }
+                 } catch (e) {
+                     // Ignore
+                 }
+                 return null;
+             }
+             
+             // Check from body down
+             return checkElement(document.body);
+         }
+         
+         // Run immediately
+         removeLandingPageScrollbar();
+         
+         // Debug: Log which element has scrollbar
+         setTimeout(() => {
+             const scrollbarElement = findScrollbarElement();
+             if (scrollbarElement) {
+                 console.warn('Scrollbar detected on:', scrollbarElement);
+                 // Force fix it
+                 scrollbarElement.style.setProperty('overflow-y', 'visible', 'important');
+                 scrollbarElement.style.setProperty('overflow', 'visible', 'important');
+                 scrollbarElement.style.setProperty('scrollbar-width', 'none', 'important');
+                 scrollbarElement.style.setProperty('-ms-overflow-style', 'none', 'important');
+             }
+         }, 100);
+         
+         // Run on DOM ready
+         if (document.readyState === 'loading') {
+             document.addEventListener('DOMContentLoaded', removeLandingPageScrollbar);
+         } else {
+             removeLandingPageScrollbar();
+         }
+         
+         // Run on window load
+         window.addEventListener('load', removeLandingPageScrollbar);
+         
+         // Run continuously to catch late-loading styles (every 100ms for first 2 seconds, then every 500ms)
+         let intervalCount = 0;
+         const fastInterval = setInterval(() => {
+             removeLandingPageScrollbar();
+             intervalCount++;
+             if (intervalCount >= 20) { // After 2 seconds (20 * 100ms)
+                 clearInterval(fastInterval);
+                 // Continue with slower interval
+                 setInterval(removeLandingPageScrollbar, 500);
+             }
+         }, 100);
+         
+         // Watch for style changes
+         const observer = new MutationObserver(function(mutations) {
+             mutations.forEach(function(mutation) {
+                 if (mutation.type === 'attributes' && (mutation.attributeName === 'style' || mutation.attributeName === 'class')) {
+                     removeLandingPageScrollbar();
+                 }
+             });
+         });
+         
+         const landingPage = document.getElementById('landing-page');
+         if (landingPage) {
+             observer.observe(landingPage, { attributes: true, subtree: true, childList: true });
+             
+             // Observe all parent elements
+             let parent = landingPage.parentElement;
+             while (parent && parent !== document.body) {
+                 observer.observe(parent, { attributes: true });
+                 parent = parent.parentElement;
+             }
+         }
+         
+         // Navbar scroll effect - ABSOLUTE FIX - Ensure navbar stays fixed and responds to scroll
+         (function initNavbarScroll() {
+             const header = document.querySelector('.kozy-landing-header');
+             if (!header) {
+                 // Retry if header not found yet
+                 setTimeout(initNavbarScroll, 100);
+                 return;
+             }
+             
+             // Force navbar to stay fixed
+             header.style.setProperty('position', 'fixed', 'important');
+             header.style.setProperty('top', '0', 'important');
+             header.style.setProperty('left', '0', 'important');
+             header.style.setProperty('right', '0', 'important');
+             header.style.setProperty('width', '100%', 'important');
+             header.style.setProperty('z-index', '1000', 'important');
+             
+             let lastScrollY = 0;
+             
+             function updateNavbar() {
+                 if (!header) return;
+                 
+                 // Get scroll position - try all methods
+                 const scrollY = Math.max(
+                     window.pageYOffset || 0,
+                     document.documentElement.scrollTop || 0,
+                     document.body.scrollTop || 0,
+                     window.scrollY || 0,
+                     document.documentElement.scrollTop || document.body.scrollTop || 0
+                 );
+                 
+                 // Ensure navbar stays fixed
+                 header.style.setProperty('position', 'fixed', 'important');
+                 
+                 // Update scrolled class
+                 if (scrollY > 50) {
+                     header.classList.add('scrolled');
+                 } else {
+                     header.classList.remove('scrolled');
+                 }
+                 
+                 lastScrollY = scrollY;
+             }
+             
+             // Multiple scroll detection methods
+             function onScroll() {
+                 updateNavbar();
+             }
+             
+             // Add event listeners with multiple options
+             window.addEventListener('scroll', onScroll, { passive: true, capture: false });
+             window.addEventListener('scroll', onScroll, { passive: true, capture: true });
+             document.addEventListener('scroll', onScroll, { passive: true, capture: true });
+             window.addEventListener('wheel', onScroll, { passive: true });
+             window.addEventListener('touchmove', onScroll, { passive: true });
+             
+             // Continuous monitoring - check every 16ms (60fps)
+             const scrollMonitor = setInterval(() => {
+                 const currentScrollY = Math.max(
+                     window.pageYOffset || 0,
+                     document.documentElement.scrollTop || 0,
+                     document.body.scrollTop || 0
+                 );
+                 
+                 // Ensure navbar stays fixed
+                 header.style.setProperty('position', 'fixed', 'important');
+                 
+                 if (Math.abs(currentScrollY - lastScrollY) > 0.1) {
+                     updateNavbar();
+                 }
+             }, 16);
+             
+             // Initial update
+             updateNavbar();
+             
+             // Update on various events
+             setTimeout(updateNavbar, 0);
+             setTimeout(updateNavbar, 50);
+             setTimeout(updateNavbar, 100);
+             setTimeout(updateNavbar, 200);
+             
+             window.addEventListener('load', updateNavbar);
+             document.addEventListener('DOMContentLoaded', updateNavbar);
+             
+             // Watch for any style changes that might affect the navbar
+             const observer = new MutationObserver(function(mutations) {
+                 mutations.forEach(function(mutation) {
+                     if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                         // Re-apply fixed position if it was changed
+                         header.style.setProperty('position', 'fixed', 'important');
+                         header.style.setProperty('top', '0', 'important');
+                     }
+                 });
+             });
+             
+             observer.observe(header, { attributes: true, attributeFilter: ['style'] });
+         })();
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Modal Functions
+        function openLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        function openRegisterModal() {
+            document.getElementById('registerModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            // Clear form errors
+            document.querySelectorAll('#' + modalId + ' .kozy-error-message').forEach(el => {
+                el.textContent = '';
+            });
+        }
+
+        // Close modal on backdrop click
+        document.querySelectorAll('.kozy-modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.kozy-modal-overlay.active').forEach(overlay => {
+                    closeModal(overlay.id);
+                });
+            }
+        });
+
+        // Toggle password visibility
+        function togglePassword(inputId, iconElement) {
+            const passwordInput = document.getElementById(inputId);
+            const icon = iconElement;
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        }
+
+        // AJAX Login Form Submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            
+            // Clear previous errors
+            document.querySelectorAll('#loginModal .kozy-error-message').forEach(el => {
+                el.textContent = '';
+            });
+            
+            // Disable submit button
+            submitButton.disabled = true;
+            submitButton.textContent = 'Logging in...';
+            
+            try {
+                const response = await fetch('/Account/Login', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.redirected) {
+                    // Success - redirect to dashboard
+                    window.location.href = response.url;
+                } else {
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Check for validation errors
+                    const errors = doc.querySelectorAll('.text-danger, .field-validation-error');
+                    if (errors.length > 0) {
+                        errors.forEach(error => {
+                            const fieldName = error.getAttribute('data-valmsg-for') || error.previousElementSibling?.getAttribute('for');
+                            if (fieldName) {
+                                const errorElement = document.getElementById(fieldName + 'Error') || 
+                                                   document.getElementById('login' + fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + 'Error');
+                                if (errorElement) {
+                                    errorElement.textContent = error.textContent.trim();
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Check for TempData error message
+                    const errorMessage = doc.querySelector('.text-danger')?.textContent || 
+                                       doc.body.textContent.match(/Incorrect UserId or Password/i);
+                    if (errorMessage) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'kozy-error-message';
+                        errorDiv.textContent = typeof errorMessage === 'string' ? errorMessage : 'Incorrect UserId or Password';
+                        form.insertBefore(errorDiv, form.firstChild);
+                    }
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'kozy-error-message';
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                form.insertBefore(errorDiv, form.firstChild);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+
+        // AJAX Register Form Submission
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            
+            // Clear previous errors
+            document.querySelectorAll('#registerModal .kozy-error-message').forEach(el => {
+                el.textContent = '';
+            });
+            
+            // Disable submit button
+            submitButton.disabled = true;
+            submitButton.textContent = 'Registering...';
+            
+            try {
+                const response = await fetch('/Account/Register', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.redirected) {
+                    // Success - redirect to login
+                    closeModal('registerModal');
+                    if (typeof showKozyToast !== 'undefined') {
+                        showKozyToast('Registration successful! Please login.', 'success');
+                    } else if (typeof toastr !== 'undefined') {
+                        toastr.success('Registration successful! Please login.');
+                    }
+                    setTimeout(() => {
+                        openLoginModal();
+                    }, 1000);
+                } else {
+                    const html = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Check for validation errors
+                    const errors = doc.querySelectorAll('.text-danger, .field-validation-error');
+                    if (errors.length > 0) {
+                        errors.forEach(error => {
+                            const fieldName = error.getAttribute('data-valmsg-for') || error.previousElementSibling?.getAttribute('for');
+                            if (fieldName) {
+                                const errorElement = document.getElementById('register' + fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + 'Error');
+                                if (errorElement) {
+                                    errorElement.textContent = error.textContent.trim();
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Check for TempData error message
+                    const errorMessage = doc.querySelector('.text-danger')?.textContent;
+                    if (errorMessage) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'kozy-error-message';
+                        errorDiv.textContent = errorMessage.trim();
+                        form.insertBefore(errorDiv, form.firstChild);
+                    }
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'kozy-error-message';
+                errorDiv.textContent = 'An error occurred. Please try again.';
+                form.insertBefore(errorDiv, form.firstChild);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+    </script>
+}

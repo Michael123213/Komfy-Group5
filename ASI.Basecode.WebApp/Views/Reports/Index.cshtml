@@ -1,89 +1,218 @@
 @{
-    ViewData["Title"] = "Reports";
+    ViewData["Title"] = "System Reports - KOZY";
 }
 
-<div class="container-fluid mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fa-solid fa-chart-line text-primary"></i> System Reports</h2>
+<style>
+    .kozy-reports-header {
+        margin-bottom: 2rem;
+    }
+
+    .kozy-reports-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2F3030;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .kozy-reports-tabs {
+        border-bottom: 2px solid #E5E7EB;
+        margin-bottom: 2rem;
+    }
+
+    .kozy-tab-link {
+        padding: 1rem 1.5rem;
+        color: #6B7280;
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .kozy-tab-link:hover {
+        color: #FF8223;
+        border-bottom-color: rgba(255, 130, 35, 0.3);
+    }
+
+    .kozy-tab-link.active {
+        color: #FF8223;
+        border-bottom-color: #FF8223;
+    }
+
+    .kozy-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kozy-stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kozy-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .kozy-stat-card-primary::before {
+        background: linear-gradient(90deg, #FF8223 0%, #FFA45F 100%);
+    }
+
+    .kozy-stat-card-success::before {
+        background: linear-gradient(90deg, #10B981 0%, #34D399 100%);
+    }
+
+    .kozy-stat-card-danger::before {
+        background: linear-gradient(90deg, #EF4444 0%, #F87171 100%);
+    }
+
+    .kozy-stat-card-secondary::before {
+        background: linear-gradient(90deg, #6B7280 0%, #9CA3AF 100%);
+    }
+
+    .kozy-stat-card-info::before {
+        background: linear-gradient(90deg, #68BEB2 0%, #2A5C55 100%);
+    }
+
+    .kozy-stat-card-warning::before {
+        background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
+    }
+
+    .kozy-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .kozy-stat-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #6B7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.75rem;
+    }
+
+    .kozy-stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2F3030;
+        margin: 0;
+    }
+
+    .kozy-chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .kozy-chart-header {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #E5E7EB;
+    }
+
+    .kozy-chart-container {
+        position: relative;
+        height: 300px;
+    }
+
+    .tab-content {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+<div class="animate-fade-in">
+    <div class="kozy-reports-header">
+        <h1 class="kozy-reports-title">
+            <i class="fa-solid fa-chart-line" style="color: #FF8223;"></i>
+            System Reports
+        </h1>
     </div>
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
+            <i class="fa-solid fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
     <!-- Tabs Navigation -->
-    <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
-        <li class="nav-item">
-            <a class="nav-link active" id="borrowing-tab" data-toggle="tab" href="#borrowing" role="tab" aria-controls="borrowing" aria-selected="true">
-                <i class="fa-solid fa-book-open-reader"></i> Borrowing Report
+    <ul class="nav nav-tabs kozy-reports-tabs" role="tablist" style="border-bottom: 2px solid #E5E7EB;">
+        <li class="nav-item" role="presentation">
+            <a class="kozy-tab-link active" data-bs-toggle="tab" href="#borrowing" role="tab" aria-selected="true">
+                <i class="fa-solid fa-book-open-reader me-2"></i>Borrowing Report
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="inventory-tab" data-toggle="tab" href="#inventory" role="tab" aria-controls="inventory" aria-selected="false">
-                <i class="fa-solid fa-book"></i> Inventory Report
+        <li class="nav-item" role="presentation">
+            <a class="kozy-tab-link" data-bs-toggle="tab" href="#inventory" role="tab" aria-selected="false">
+                <i class="fa-solid fa-book me-2"></i>Inventory Report
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="member-tab" data-toggle="tab" href="#member" role="tab" aria-controls="member" aria-selected="false">
-                <i class="fa-solid fa-users"></i> Member Report
+        <li class="nav-item" role="presentation">
+            <a class="kozy-tab-link" data-bs-toggle="tab" href="#member" role="tab" aria-selected="false">
+                <i class="fa-solid fa-users me-2"></i>Member Report
             </a>
         </li>
     </ul>
 
     <!-- Tab Content -->
-    <div class="tab-content" id="reportTabsContent">
+    <div class="tab-content">
         <!-- Borrowing Report -->
-        <div class="tab-pane fade show active" id="borrowing" role="tabpanel" aria-labelledby="borrowing-tab">
-            <div class="row">
-                <!-- Statistics Cards -->
-                <div class="col-md-3 mb-3">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Total Borrowings</h5>
-                            <h2 class="mb-0">@ViewBag.TotalBorrowings</h2>
-                        </div>
-                    </div>
+        <div class="tab-pane fade show active" id="borrowing" role="tabpanel">
+            <!-- Statistics Cards -->
+            <div class="kozy-stats-grid">
+                <div class="kozy-stat-card kozy-stat-card-primary">
+                    <div class="kozy-stat-title">Total Borrowings</div>
+                    <h2 class="kozy-stat-value">@ViewBag.TotalBorrowings</h2>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Active</h5>
-                            <h2 class="mb-0">@ViewBag.ActiveBorrowings</h2>
-                        </div>
-                    </div>
+                <div class="kozy-stat-card kozy-stat-card-success">
+                    <div class="kozy-stat-title">Active</div>
+                    <h2 class="kozy-stat-value">@ViewBag.ActiveBorrowings</h2>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card bg-danger text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Overdue</h5>
-                            <h2 class="mb-0">@ViewBag.OverdueBorrowings</h2>
-                        </div>
-                    </div>
+                <div class="kozy-stat-card kozy-stat-card-danger">
+                    <div class="kozy-stat-title">Overdue</div>
+                    <h2 class="kozy-stat-value">@ViewBag.OverdueBorrowings</h2>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card bg-secondary text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Returned</h5>
-                            <h2 class="mb-0">@ViewBag.ReturnedBorrowings</h2>
-                        </div>
-                    </div>
+                <div class="kozy-stat-card kozy-stat-card-secondary">
+                    <div class="kozy-stat-title">Returned</div>
+                    <h2 class="kozy-stat-value">@ViewBag.ReturnedBorrowings</h2>
                 </div>
             </div>
 
             <div class="row">
                 <!-- Borrowing Status Pie Chart -->
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Borrowing Status Distribution</h5>
-                        </div>
-                        <div class="card-body">
+                    <div class="kozy-chart-card">
+                        <div class="kozy-chart-header">Borrowing Status Distribution</div>
+                        <div class="kozy-chart-container">
                             <canvas id="borrowingStatusChart"></canvas>
                         </div>
                     </div>
@@ -91,11 +220,9 @@
 
                 <!-- Borrowing Trends Line Chart -->
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Borrowing Trends (Last 6 Months)</h5>
-                        </div>
-                        <div class="card-body">
+                    <div class="kozy-chart-card">
+                        <div class="kozy-chart-header">Borrowing Trends (Last 6 Months)</div>
+                        <div class="kozy-chart-container">
                             <canvas id="borrowingTrendsChart"></canvas>
                         </div>
                     </div>
@@ -104,43 +231,29 @@
         </div>
 
         <!-- Inventory Report -->
-        <div class="tab-pane fade" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
-            <div class="row">
-                <!-- Statistics Cards -->
-                <div class="col-md-4 mb-3">
-                    <div class="card bg-info text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Total Books</h5>
-                            <h2 class="mb-0">@ViewBag.TotalBooks</h2>
-                        </div>
-                    </div>
+        <div class="tab-pane fade" id="inventory" role="tabpanel">
+            <!-- Statistics Cards -->
+            <div class="kozy-stats-grid">
+                <div class="kozy-stat-card kozy-stat-card-info">
+                    <div class="kozy-stat-title">Total Books</div>
+                    <h2 class="kozy-stat-value">@ViewBag.TotalBooks</h2>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Available</h5>
-                            <h2 class="mb-0">@ViewBag.AvailableBooks</h2>
-                        </div>
-                    </div>
+                <div class="kozy-stat-card kozy-stat-card-success">
+                    <div class="kozy-stat-title">Available</div>
+                    <h2 class="kozy-stat-value">@ViewBag.AvailableBooks</h2>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card bg-warning text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Borrowed</h5>
-                            <h2 class="mb-0">@ViewBag.BorrowedBooks</h2>
-                        </div>
-                    </div>
+                <div class="kozy-stat-card kozy-stat-card-warning">
+                    <div class="kozy-stat-title">Borrowed</div>
+                    <h2 class="kozy-stat-value">@ViewBag.BorrowedBooks</h2>
                 </div>
             </div>
 
             <div class="row">
                 <!-- Books by Genre Chart -->
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Books by Genre (Top 10)</h5>
-                        </div>
-                        <div class="card-body">
+                    <div class="kozy-chart-card">
+                        <div class="kozy-chart-header">Books by Genre (Top 10)</div>
+                        <div class="kozy-chart-container">
                             <canvas id="booksByGenreChart"></canvas>
                         </div>
                     </div>
@@ -148,11 +261,9 @@
 
                 <!-- Top Borrowed Books Chart -->
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Most Borrowed Books (Top 10)</h5>
-                        </div>
-                        <div class="card-body">
+                    <div class="kozy-chart-card">
+                        <div class="kozy-chart-header">Most Borrowed Books (Top 10)</div>
+                        <div class="kozy-chart-container">
                             <canvas id="topBorrowedBooksChart"></canvas>
                         </div>
                     </div>
@@ -162,11 +273,9 @@
             <!-- Book Status Pie Chart -->
             <div class="row">
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Book Availability Status</h5>
-                        </div>
-                        <div class="card-body">
+                    <div class="kozy-chart-card">
+                        <div class="kozy-chart-header">Book Availability Status</div>
+                        <div class="kozy-chart-container">
                             <canvas id="bookStatusChart"></canvas>
                         </div>
                     </div>
@@ -175,43 +284,29 @@
         </div>
 
         <!-- Member Report -->
-        <div class="tab-pane fade" id="member" role="tabpanel" aria-labelledby="member-tab">
-            <div class="row">
-                <!-- Statistics Cards -->
-                <div class="col-md-4 mb-3">
-                    <div class="card bg-primary text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Total Members</h5>
-                            <h2 class="mb-0">@ViewBag.TotalMembers</h2>
-                        </div>
-                    </div>
+        <div class="tab-pane fade" id="member" role="tabpanel">
+            <!-- Statistics Cards -->
+            <div class="kozy-stats-grid">
+                <div class="kozy-stat-card kozy-stat-card-primary">
+                    <div class="kozy-stat-title">Total Members</div>
+                    <h2 class="kozy-stat-value">@ViewBag.TotalMembers</h2>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card bg-success text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Active Members</h5>
-                            <h2 class="mb-0">@ViewBag.ActiveMembers</h2>
-                        </div>
-                    </div>
+                <div class="kozy-stat-card kozy-stat-card-success">
+                    <div class="kozy-stat-title">Active Members</div>
+                    <h2 class="kozy-stat-value">@ViewBag.ActiveMembers</h2>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card bg-secondary text-white">
-                        <div class="card-body">
-                            <h5 class="card-title">Inactive Members</h5>
-                            <h2 class="mb-0">@ViewBag.InactiveMembers</h2>
-                        </div>
-                    </div>
+                <div class="kozy-stat-card kozy-stat-card-secondary">
+                    <div class="kozy-stat-title">Inactive Members</div>
+                    <h2 class="kozy-stat-value">@ViewBag.InactiveMembers</h2>
                 </div>
             </div>
 
             <div class="row">
                 <!-- Top Borrowers Chart -->
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Top Borrowers (Top 10)</h5>
-                        </div>
-                        <div class="card-body">
+                    <div class="kozy-chart-card">
+                        <div class="kozy-chart-header">Top Borrowers (Top 10)</div>
+                        <div class="kozy-chart-container">
                             <canvas id="topBorrowersChart"></canvas>
                         </div>
                     </div>
@@ -219,11 +314,9 @@
 
                 <!-- Member Activity Chart -->
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Member Activity Status</h5>
-                        </div>
-                        <div class="card-body">
+                    <div class="kozy-chart-card">
+                        <div class="kozy-chart-header">Member Activity Status</div>
+                        <div class="kozy-chart-container">
                             <canvas id="memberActivityChart"></canvas>
                         </div>
                     </div>
@@ -233,11 +326,9 @@
             <!-- Members by Role Chart -->
             <div class="row">
                 <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Members by Role</h5>
-                        </div>
-                        <div class="card-body">
+                    <div class="kozy-chart-card">
+                        <div class="kozy-chart-header">Members by Role</div>
+                        <div class="kozy-chart-container">
                             <canvas id="membersByRoleChart"></canvas>
                         </div>
                     </div>
@@ -248,176 +339,306 @@
 </div>
 
 @section Scripts {
+    @* Chart.js library for data visualization *@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        // Borrowing Status Pie Chart
-        const borrowingStatusCtx = document.getElementById('borrowingStatusChart').getContext('2d');
-        new Chart(borrowingStatusCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Active', 'Overdue', 'Returned', 'Cancelled'],
-                datasets: [{
-                    data: [@ViewBag.ActiveBorrowings, @ViewBag.OverdueBorrowings, @ViewBag.ReturnedBorrowings, @ViewBag.CancelledBorrowings],
-                    backgroundColor: ['#28a745', '#dc3545', '#6c757d', '#ffc107']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true
-            }
+        @* ============================================
+           BOOTSTRAP TAB NAVIGATION
+           ============================================ *@
+        @* Initialize and handle Bootstrap 5 tab switching for report sections *@
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabLinks = document.querySelectorAll('.kozy-tab-link');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            
+            @* Handle tab click events to switch between report sections *@
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    
+                    @* Remove active state from all tabs and panes *@
+                    tabLinks.forEach(l => l.classList.remove('active'));
+                    tabPanes.forEach(p => {
+                        p.classList.remove('show', 'active');
+                    });
+                    
+                    @* Activate clicked tab *@
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+                    
+                    @* Display corresponding tab pane content *@
+                    const targetPane = document.querySelector(targetId);
+                    if (targetPane) {
+                        targetPane.classList.add('show', 'active');
+                    }
+                    
+                    @* Trigger Bootstrap tab component to ensure proper state management *@
+                    const tab = new bootstrap.Tab(this);
+                    tab.show();
+                });
+                
+                @* Handle Bootstrap's shown event to maintain active state consistency *@
+                link.addEventListener('shown.bs.tab', function() {
+                    tabLinks.forEach(l => {
+                        l.classList.remove('active');
+                        l.setAttribute('aria-selected', 'false');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+                });
+            });
         });
 
-        // Borrowing Trends Line Chart
-        const borrowingTrendsCtx = document.getElementById('borrowingTrendsChart').getContext('2d');
-        new Chart(borrowingTrendsCtx, {
-            type: 'line',
-            data: {
-                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.BorrowingsByMonth).Select(x => $"'{x.Month}'")))],
-                datasets: [{
-                    label: 'Borrowings',
-                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.BorrowingsByMonth).Select(x => x.Count)))],
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+        @* ============================================
+           BORROWING REPORT CHARTS
+           ============================================ *@
+        @* Pie chart displaying borrowing status distribution *@
+        const borrowingStatusCtx = document.getElementById('borrowingStatusChart');
+        if (borrowingStatusCtx) {
+            new Chart(borrowingStatusCtx.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: ['Active', 'Overdue', 'Returned', 'Cancelled'],
+                    datasets: [{
+                        data: [@ViewBag.ActiveBorrowings, @ViewBag.OverdueBorrowings, @ViewBag.ReturnedBorrowings, @(ViewBag.CancelledBorrowings ?? 0)],
+                        backgroundColor: ['#10B981', '#EF4444', '#6B7280', '#F59E0B']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
                     }
                 }
+            });
+        }
+
+        // Borrowing Trends Line Chart with KOZY colors
+        const borrowingTrendsCtx = document.getElementById('borrowingTrendsChart');
+        if (borrowingTrendsCtx) {
+            @{
+                var borrowingsByMonth = ViewBag.BorrowingsByMonth as IEnumerable<dynamic>;
             }
-        });
+            @if (borrowingsByMonth != null && borrowingsByMonth.Any())
+            {
+                <text>
+                new Chart(borrowingTrendsCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: [@Html.Raw(string.Join(",", borrowingsByMonth.Select(x => $"'{x.Month}'")))],
+                        datasets: [{
+                            label: 'Borrowings',
+                            data: [@Html.Raw(string.Join(",", borrowingsByMonth.Select(x => x.Count)))],
+                            borderColor: '#FF8223',
+                            backgroundColor: 'rgba(255, 130, 35, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#FF8223',
+                            pointBorderColor: '#FFFFFF',
+                            pointBorderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+        }
 
         // Books by Genre Chart
-        const booksByGenreCtx = document.getElementById('booksByGenreChart').getContext('2d');
-        new Chart(booksByGenreCtx, {
-            type: 'bar',
-            data: {
-                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.BooksByGenre).Select(x => $"'{x.Genre}'")))],
-                datasets: [{
-                    label: 'Number of Books',
-                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.BooksByGenre).Select(x => x.Count)))],
-                    backgroundColor: '#17a2b8'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+        const booksByGenreCtx = document.getElementById('booksByGenreChart');
+        if (booksByGenreCtx) {
+            @{
+                var booksByGenre = ViewBag.BooksByGenre as IEnumerable<dynamic>;
             }
-        });
+            @if (booksByGenre != null && booksByGenre.Any())
+            {
+                <text>
+                new Chart(booksByGenreCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: [@Html.Raw(string.Join(",", booksByGenre.Select(x => $"'{x.Genre}'")))],
+                        datasets: [{
+                            label: 'Number of Books',
+                            data: [@Html.Raw(string.Join(",", booksByGenre.Select(x => x.Count)))],
+                            backgroundColor: '#68BEB2'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+        }
 
         // Top Borrowed Books Chart
-        const topBorrowedBooksCtx = document.getElementById('topBorrowedBooksChart').getContext('2d');
-        new Chart(topBorrowedBooksCtx, {
-            type: 'bar',
-            data: {
-                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.TopBorrowedBooks).Select(x => $"'{x.Title}'")))],
-                datasets: [{
-                    label: 'Times Borrowed',
-                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.TopBorrowedBooks).Select(x => x.BorrowCount)))],
-                    backgroundColor: '#28a745'
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    x: {
-                        beginAtZero: true
-                    }
-                }
+        const topBorrowedBooksCtx = document.getElementById('topBorrowedBooksChart');
+        if (topBorrowedBooksCtx) {
+            @{
+                var topBorrowedBooks = ViewBag.TopBorrowedBooks as IEnumerable<dynamic>;
             }
-        });
+            @if (topBorrowedBooks != null && topBorrowedBooks.Any())
+            {
+                <text>
+                new Chart(topBorrowedBooksCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: [@Html.Raw(string.Join(",", topBorrowedBooks.Select(x => $"'{x.Title}'")))],
+                        datasets: [{
+                            label: 'Times Borrowed',
+                            data: [@Html.Raw(string.Join(",", topBorrowedBooks.Select(x => x.BorrowCount)))],
+                            backgroundColor: '#FF8223'
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+        }
 
         // Book Status Pie Chart
-        const bookStatusCtx = document.getElementById('bookStatusChart').getContext('2d');
-        new Chart(bookStatusCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Available', 'Borrowed'],
-                datasets: [{
-                    data: [@ViewBag.AvailableBooks, @ViewBag.BorrowedBooks],
-                    backgroundColor: ['#28a745', '#ffc107']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true
-            }
-        });
+        const bookStatusCtx = document.getElementById('bookStatusChart');
+        if (bookStatusCtx) {
+            new Chart(bookStatusCtx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Available', 'Borrowed'],
+                    datasets: [{
+                        data: [@ViewBag.AvailableBooks, @ViewBag.BorrowedBooks],
+                        backgroundColor: ['#10B981', '#F59E0B']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
 
         // Top Borrowers Chart
-        const topBorrowersCtx = document.getElementById('topBorrowersChart').getContext('2d');
-        new Chart(topBorrowersCtx, {
-            type: 'bar',
-            data: {
-                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.TopBorrowers).Select(x => $"'{x.UserName}'")))],
-                datasets: [{
-                    label: 'Books Borrowed',
-                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.TopBorrowers).Select(x => x.BorrowCount)))],
-                    backgroundColor: '#007bff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
+        const topBorrowersCtx = document.getElementById('topBorrowersChart');
+        if (topBorrowersCtx) {
+            @{
+                var topBorrowers = ViewBag.TopBorrowers as IEnumerable<dynamic>;
             }
-        });
+            @if (topBorrowers != null && topBorrowers.Any())
+            {
+                <text>
+                new Chart(topBorrowersCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: [@Html.Raw(string.Join(",", topBorrowers.Select(x => $"'{x.UserName}'")))],
+                        datasets: [{
+                            label: 'Books Borrowed',
+                            data: [@Html.Raw(string.Join(",", topBorrowers.Select(x => x.BorrowCount)))],
+                            backgroundColor: '#FF8223'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+        }
 
         // Member Activity Chart
-        const memberActivityCtx = document.getElementById('memberActivityChart').getContext('2d');
-        new Chart(memberActivityCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Active', 'Inactive'],
-                datasets: [{
-                    data: [@ViewBag.ActiveMembers, @ViewBag.InactiveMembers],
-                    backgroundColor: ['#28a745', '#6c757d']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true
-            }
-        });
-
-        // Members by Role Chart
-        const membersByRoleCtx = document.getElementById('membersByRoleChart').getContext('2d');
-        new Chart(membersByRoleCtx, {
-            type: 'bar',
-            data: {
-                labels: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.MembersByRole).Select(x => $"'{x.Role}'")))],
-                datasets: [{
-                    label: 'Number of Members',
-                    data: [@Html.Raw(string.Join(",", ((IEnumerable<dynamic>)ViewBag.MembersByRole).Select(x => x.Count)))],
-                    backgroundColor: '#6f42c1'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
+        const memberActivityCtx = document.getElementById('memberActivityChart');
+        if (memberActivityCtx) {
+            new Chart(memberActivityCtx.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: ['Active', 'Inactive'],
+                    datasets: [{
+                        data: [@ViewBag.ActiveMembers, @ViewBag.InactiveMembers],
+                        backgroundColor: ['#10B981', '#6B7280']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
                     }
                 }
+            });
+        }
+
+        // Members by Role Chart
+        const membersByRoleCtx = document.getElementById('membersByRoleChart');
+        if (membersByRoleCtx) {
+            @{
+                var membersByRole = ViewBag.MembersByRole as IEnumerable<dynamic>;
             }
-        });
+            @if (membersByRole != null && membersByRole.Any())
+            {
+                <text>
+                new Chart(membersByRoleCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: [@Html.Raw(string.Join(",", membersByRole.Select(x => $"'{x.Role}'")))],
+                        datasets: [{
+                            label: 'Number of Members',
+                            data: [@Html.Raw(string.Join(",", membersByRole.Select(x => x.Count)))],
+                            backgroundColor: '#68BEB2'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+        }
     </script>
 }

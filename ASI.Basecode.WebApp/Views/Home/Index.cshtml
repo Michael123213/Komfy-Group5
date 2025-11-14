@@ -1,217 +1,485 @@
 ﻿@{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Dashboard - KOZY";
 }
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="jumbotron bg-light p-5 rounded">
-                <h1 class="display-4">
-                    <i class="fa-solid fa-book-open"></i> Welcome to Komfy Library
-                </h1>
-                <p class="lead">Library Management System - Manage your books, borrowings, reviews, and more!</p>
-                <hr class="my-4">
-                <p>Navigate through the menu to access different features of the system.</p>
-            </div>
+<style>
+    .kozy-dashboard-header {
+        margin-bottom: 2rem;
+    }
+
+    .kozy-dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2F3030;
+        margin-bottom: 1rem;
+    }
+
+    .kozy-search-section {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .kozy-search-bar {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .kozy-search-input-wrapper {
+        flex: 1;
+        position: relative;
+    }
+
+    .kozy-search-input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 3rem;
+        border: 2px solid #C3C3C3;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .kozy-search-input:focus {
+        outline: none;
+        border-color: #FF8223;
+        box-shadow: 0 0 0 3px rgba(255, 130, 35, 0.1);
+    }
+
+    .kozy-search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6B7280;
+    }
+
+    .kozy-search-btn {
+        padding: 0.875rem 2rem;
+        background: #2A5C55;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .kozy-search-btn:hover {
+        background: #1f4a44;
+        transform: translateY(-2px);
+    }
+
+    .kozy-section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 1.5rem;
+    }
+
+    .kozy-featured-genres {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .kozy-genre-card {
+        position: relative;
+        height: 200px;
+        border-radius: 16px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .kozy-genre-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .kozy-genre-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .kozy-genre-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        padding: 1.5rem;
+        color: white;
+    }
+
+    .kozy-genre-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .kozy-book-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .kozy-book-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .kozy-book-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .kozy-book-cover {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        background: #C3C3C3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .kozy-book-info {
+        padding: 1rem;
+    }
+
+    .kozy-book-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .kozy-book-author {
+        font-size: 0.875rem;
+        color: #6B7280;
+        margin-bottom: 0.5rem;
+    }
+
+    .kozy-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .kozy-stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .kozy-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .kozy-stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .kozy-stat-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #2F3030;
+    }
+
+    .kozy-stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .kozy-stat-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .kozy-stat-item {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #E5E7EB;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .kozy-stat-item:last-child {
+        border-bottom: none;
+    }
+
+    .kozy-stat-item-title {
+        font-weight: 500;
+        color: #2F3030;
+        font-size: 0.875rem;
+    }
+
+    .kozy-stat-item-subtitle {
+        font-size: 0.75rem;
+        color: #6B7280;
+    }
+
+    .kozy-badge-stat {
+        background: #FF8223;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="kozy-dashboard-header animate-fade-in">
+    <h1 class="kozy-dashboard-title">Discover</h1>
+</div>
+
+<!-- Search Section -->
+<div class="kozy-search-section animate-fade-in-up stagger-1">
+    <form asp-action="Index" asp-controller="Book" method="get" class="kozy-search-bar">
+        <div class="kozy-search-input-wrapper">
+            <i class="fa-solid fa-search kozy-search-icon"></i>
+            <input type="text" name="searchTerm" class="kozy-search-input" placeholder="Search books by title or code..." />
+        </div>
+        <select name="genre" class="kozy-search-input" style="width: 200px;">
+            <option value="">All Genres</option>
+            @if (ViewBag.Genres != null)
+            {
+                foreach (var genre in ViewBag.Genres)
+                {
+                    <option value="@genre">@genre</option>
+                }
+            }
+        </select>
+        <button type="submit" class="kozy-search-btn">
+            <i class="fa-solid fa-search me-2"></i>Search
+        </button>
+    </form>
+</div>
+
+<!-- Featured Genres -->
+@if (ViewBag.Genres != null)
+{
+    <div class="animate-fade-in-up stagger-2">
+        <h2 class="kozy-section-title">Featured Category</h2>
+        <div class="kozy-featured-genres">
+            @{
+                var featuredGenres = new[] { "Horror", "Sci-fi", "Comedy", "Romance" };
+                var availableGenres = ((List<string>)ViewBag.Genres).Where(g => featuredGenres.Contains(g, StringComparer.OrdinalIgnoreCase)).Take(4).ToList();
+            }
+            @foreach (var genre in availableGenres)
+            {
+                <a asp-action="Index" asp-controller="Book" asp-route-genre="@genre" class="kozy-genre-card">
+                    <div style="background: linear-gradient(135deg, #FF8223 0%, #FFA45F 100%); height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <div class="text-center text-white">
+                            <i class="fa-solid fa-book" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <h3 class="kozy-genre-title">@genre</h3>
+                        </div>
+                    </div>
+                </a>
+            }
         </div>
     </div>
+}
 
-    <div class="row mt-4">
-        <div class="col-md-4 mb-4">
-            <div class="card text-white bg-primary">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-book fa-3x mb-3"></i>
-                    <h5 class="card-title">Books</h5>
-                    <p class="card-text">Manage your library's book collection</p>
-                    <a asp-controller="Book" asp-action="Index" class="btn btn-light">View Books</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card text-white bg-success">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-book-open-reader fa-3x mb-3"></i>
-                    <h5 class="card-title">Borrowings</h5>
-                    <p class="card-text">Track book borrowings and returns</p>
-                    <a asp-controller="Borrowing" asp-action="Index" class="btn btn-light">View Borrowings</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card text-white bg-warning">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-star fa-3x mb-3"></i>
-                    <h5 class="card-title">Reviews</h5>
-                    <p class="card-text">Read and write book reviews</p>
-                    <a asp-controller="Review" asp-action="Index" class="btn btn-light">View Reviews</a>
-                </div>
-            </div>
-        </div>
-
-        @if (User.IsInRole("Admin"))
+<!-- Book Recommendations -->
+<div class="animate-fade-in-up stagger-3">
+    <h2 class="kozy-section-title">Book Recommendations</h2>
+    <div class="kozy-book-grid">
+        @{
+            var recommendedBooks = ViewBag.MostBorrowedBooks as List<ASI.Basecode.Services.ServiceModels.BookModel>;
+            if (recommendedBooks == null || !recommendedBooks.Any())
+            {
+                recommendedBooks = ViewBag.TopRatedBooks as List<ASI.Basecode.Services.ServiceModels.BookModel>;
+            }
+        }
+        @if (recommendedBooks != null && recommendedBooks.Any())
         {
-            <div class="col-md-4 mb-4">
-                <div class="card text-white bg-danger">
-                    <div class="card-body text-center">
-                        <i class="fa-solid fa-users fa-3x mb-3"></i>
-                        <h5 class="card-title">Users</h5>
-                        <p class="card-text">Manage library members and admins</p>
-                        <a asp-controller="User" asp-action="Index" class="btn btn-light">View Users</a>
+            @foreach (var book in recommendedBooks.Take(8))
+            {
+                <a asp-action="Index" asp-controller="Book" asp-route-searchTerm="@book.Title" class="kozy-book-card">
+                    <div class="kozy-book-cover">
+                        @if (!string.IsNullOrEmpty(book.CoverImagePath))
+                        {
+                            <img src="@book.CoverImagePath" alt="@book.Title" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background: #C3C3C3;">
+                                <i class="fa-solid fa-book text-white" style="font-size: 3rem;"></i>
+                            </div>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-book text-white" style="font-size: 3rem;"></i>
+                        }
                     </div>
-                </div>
+                    <div class="kozy-book-info">
+                        <h3 class="kozy-book-title">@book.Title</h3>
+                        <p class="kozy-book-author">@book.Author</p>
+                        @if (book.ReviewCount > 0)
+                        {
+                            <div style="color: #F59E0B; font-size: 0.875rem;">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= Math.Floor(book.AverageRating))
+                                    {
+                                        <i class="fa-solid fa-star"></i>
+                                    }
+                                    else if (i <= Math.Ceiling(book.AverageRating))
+                                    {
+                                        <i class="fa-solid fa-star-half-stroke"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa-regular fa-star"></i>
+                                    }
+                                }
+                                <span style="color: #6B7280; margin-left: 0.5rem;">@book.AverageRating.ToString("0.0")</span>
+                            </div>
+                        }
+                    </div>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="fa-solid fa-book-open" style="font-size: 4rem; color: #C3C3C3; margin-bottom: 1rem;"></i>
+                <p style="color: #6B7280;">No book recommendations available yet.</p>
             </div>
         }
-
-        <div class="col-md-4 mb-4">
-            <div class="card text-white bg-info">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-bell fa-3x mb-3"></i>
-                    <h5 class="card-title">Notifications</h5>
-                    <p class="card-text">View system notifications</p>
-                    <a asp-controller="Notification" asp-action="Index" class="btn btn-light">View Notifications</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-4">
-            <div class="card text-white bg-secondary">
-                <div class="card-body text-center">
-                    <i class="fa-solid fa-gear fa-3x mb-3"></i>
-                    <h5 class="card-title">Settings</h5>
-                    <p class="card-text">Customize your preferences</p>
-                    <a asp-controller="UserSetting" asp-action="Index" class="btn btn-light">View Settings</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Analytics Section -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <h3 class="mb-3"><i class="fa-solid fa-chart-line"></i> Library Analytics</h3>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Most Borrowed Books -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fa-solid fa-trophy"></i> Most Borrowed Books</h5>
-                </div>
-                <div class="card-body">
-                    @{
-                        var mostBorrowedBooks = ViewBag.MostBorrowedBooks as List<ASI.Basecode.Services.ServiceModels.BookModel>;
-                    }
-                    @if (mostBorrowedBooks != null && mostBorrowedBooks.Any())
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var book in mostBorrowedBooks)
-                            {
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 fw-bold">@book.Title</h6>
-                                            <small class="text-muted">by @book.Author</small>
-                                        </div>
-                                        <span class="badge bg-primary rounded-pill">@book.BorrowCount</span>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center py-3">No borrowing data available yet.</p>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Rated Books -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-warning text-white">
-                    <h5 class="mb-0"><i class="fa-solid fa-star"></i> Top Rated Books</h5>
-                </div>
-                <div class="card-body">
-                    @{
-                        var topRatedBooks = ViewBag.TopRatedBooks as List<ASI.Basecode.Services.ServiceModels.BookModel>;
-                    }
-                    @if (topRatedBooks != null && topRatedBooks.Any())
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var book in topRatedBooks)
-                            {
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 fw-bold">@book.Title</h6>
-                                            <small class="text-muted">by @book.Author</small>
-                                            <div class="text-warning mt-1">
-                                                @for (int i = 1; i <= 5; i++)
-                                                {
-                                                    if (i <= Math.Floor(book.AverageRating))
-                                                    {
-                                                        <i class="fa-solid fa-star"></i>
-                                                    }
-                                                    else if (i <= Math.Ceiling(book.AverageRating))
-                                                    {
-                                                        <i class="fa-solid fa-star-half-stroke"></i>
-                                                    }
-                                                    else
-                                                    {
-                                                        <i class="fa-regular fa-star"></i>
-                                                    }
-                                                }
-                                            </div>
-                                        </div>
-                                        <span class="badge bg-warning text-dark rounded-pill">@book.AverageRating.ToString("0.0")</span>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center py-3">No reviews available yet.</p>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Borrowers -->
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fa-solid fa-users"></i> Top Borrowers</h5>
-                </div>
-                <div class="card-body">
-                    @if (ViewBag.TopBorrowers != null && ((IEnumerable<dynamic>)ViewBag.TopBorrowers).Any())
-                    {
-                        <div class="list-group list-group-flush">
-                            @foreach (var borrower in ViewBag.TopBorrowers)
-                            {
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1 fw-bold">@borrower.UserName</h6>
-                                            <small class="text-muted">@borrower.UserEmail</small>
-                                        </div>
-                                        <span class="badge bg-success rounded-pill">@borrower.BorrowCount</span>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted text-center py-3">No borrowing data available yet.</p>
-                    }
-                </div>
-            </div>
-        </div>
     </div>
 </div>
+
+<!-- Analytics Section -->
+@if (User.IsInRole("Admin"))
+{
+    <div class="animate-fade-in-up stagger-4">
+        <h2 class="kozy-section-title">Library Analytics</h2>
+        <div class="kozy-stats-grid">
+            <!-- Most Borrowed Books -->
+            <div class="kozy-stat-card">
+                <div class="kozy-stat-header">
+                    <h3 class="kozy-stat-title">Most Borrowed</h3>
+                    <div class="kozy-stat-icon" style="background: rgba(255, 130, 35, 0.1); color: #FF8223;">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                </div>
+                <ul class="kozy-stat-list">
+                    @{
+                        var mostBorrowed = ViewBag.MostBorrowedBooks as List<ASI.Basecode.Services.ServiceModels.BookModel>;
+                    }
+                    @if (mostBorrowed != null && mostBorrowed.Any())
+                    {
+                        @foreach (var book in mostBorrowed.Take(5))
+                        {
+                            <li class="kozy-stat-item">
+                                <div>
+                                    <div class="kozy-stat-item-title">@book.Title</div>
+                                    <div class="kozy-stat-item-subtitle">@book.Author</div>
+                                </div>
+                                <span class="kozy-badge-stat">@book.BorrowCount</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="kozy-stat-item">
+                            <span class="kozy-stat-item-subtitle">No data available</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- Top Rated Books -->
+            <div class="kozy-stat-card">
+                <div class="kozy-stat-header">
+                    <h3 class="kozy-stat-title">Top Rated</h3>
+                    <div class="kozy-stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                </div>
+                <ul class="kozy-stat-list">
+                    @{
+                        var topRated = ViewBag.TopRatedBooks as List<ASI.Basecode.Services.ServiceModels.BookModel>;
+                    }
+                    @if (topRated != null && topRated.Any())
+                    {
+                        @foreach (var book in topRated.Take(5))
+                        {
+                            <li class="kozy-stat-item">
+                                <div>
+                                    <div class="kozy-stat-item-title">@book.Title</div>
+                                    <div class="kozy-stat-item-subtitle">@book.Author</div>
+                                </div>
+                                <span class="kozy-badge-stat" style="background: #F59E0B;">@book.AverageRating.ToString("0.0")</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="kozy-stat-item">
+                            <span class="kozy-stat-item-subtitle">No data available</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <!-- Top Borrowers -->
+            <div class="kozy-stat-card">
+                <div class="kozy-stat-header">
+                    <h3 class="kozy-stat-title">Top Borrowers</h3>
+                    <div class="kozy-stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                </div>
+                <ul class="kozy-stat-list">
+                    @if (ViewBag.TopBorrowers != null && ((IEnumerable<dynamic>)ViewBag.TopBorrowers).Any())
+                    {
+                        @foreach (var borrower in ((IEnumerable<dynamic>)ViewBag.TopBorrowers).Take(5))
+                        {
+                            <li class="kozy-stat-item">
+                                <div>
+                                    <div class="kozy-stat-item-title">@borrower.UserName</div>
+                                    <div class="kozy-stat-item-subtitle">@borrower.UserEmail</div>
+                                </div>
+                                <span class="kozy-badge-stat" style="background: #10B981;">@borrower.BorrowCount</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="kozy-stat-item">
+                            <span class="kozy-stat-item-subtitle">No data available</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+}

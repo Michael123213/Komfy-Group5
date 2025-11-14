@@ -1,244 +1,555 @@
 @model ASI.Basecode.Services.ServiceModels.UserModel
 
 @{
-    ViewData["Title"] = "My Profile";
+    ViewData["Title"] = "My Profile - KOZY";
 }
 
-<div class="container mx-auto px-4 py-6">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">
-            <i class="fa-solid fa-user-circle mr-2"></i>My Profile
+<style>
+    .kozy-profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .kozy-profile-header {
+        margin-bottom: 2rem;
+    }
+
+    .kozy-profile-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2F3030;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .kozy-profile-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+    }
+
+    .kozy-profile-sidebar {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        height: fit-content;
+        position: sticky;
+        top: 90px;
+    }
+
+    .kozy-profile-avatar {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    .kozy-avatar-circle {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #FF8223 0%, #FFA45F 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        box-shadow: 0 8px 20px rgba(255, 130, 35, 0.3);
+    }
+
+    .kozy-avatar-circle i {
+        font-size: 3rem;
+        color: white;
+    }
+
+    .kozy-profile-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 0.5rem;
+    }
+
+    .kozy-profile-email {
+        font-size: 0.875rem;
+        color: #6B7280;
+        margin-bottom: 1rem;
+    }
+
+    .kozy-profile-role {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        background: @(Model.Role == "Admin" ? "#EF4444" : "#FF8223");
+        color: white;
+    }
+
+    .kozy-profile-role i {
+        margin-right: 0.5rem;
+    }
+
+    .kozy-profile-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .kozy-profile-nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .kozy-profile-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        color: #6B7280;
+        text-decoration: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .kozy-profile-nav-link:hover {
+        background: rgba(255, 130, 35, 0.1);
+        color: #FF8223;
+    }
+
+    .kozy-profile-nav-link.active {
+        background: #FF8223;
+        color: white;
+    }
+
+    .kozy-profile-nav-link i {
+        width: 20px;
+        text-align: center;
+    }
+
+    .kozy-profile-content {
+        background: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .kozy-profile-section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #E5E7EB;
+    }
+
+    .kozy-form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .kozy-form-label {
+        display: block;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .kozy-form-label .required {
+        color: #EF4444;
+        margin-left: 0.25rem;
+    }
+
+    .kozy-form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #C3C3C3;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+        color: #2F3030;
+    }
+
+    .kozy-form-input:focus {
+        outline: none;
+        border-color: #FF8223;
+        box-shadow: 0 0 0 3px rgba(255, 130, 35, 0.1);
+    }
+
+    .kozy-form-input:disabled {
+        background: #F3F4F6;
+        color: #6B7280;
+        cursor: not-allowed;
+    }
+
+    .kozy-form-help {
+        font-size: 0.75rem;
+        color: #6B7280;
+        margin-top: 0.5rem;
+    }
+
+    .kozy-btn-save {
+        background: #FF8223;
+        color: white;
+        padding: 0.875rem 2rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 130, 35, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .kozy-btn-save:hover:not(:disabled) {
+        background: #FFA45F;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 130, 35, 0.4);
+    }
+
+    .kozy-btn-save:disabled {
+        background: #C3C3C3;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .kozy-account-info {
+        background: #F9FAFB;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        border-left: 4px solid #68BEB2;
+    }
+
+    .kozy-account-info-title {
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .kozy-account-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: #6B7280;
+    }
+
+    .kozy-account-info-item strong {
+        color: #2F3030;
+        margin-right: 0.5rem;
+    }
+
+    .profile-section {
+        display: none;
+    }
+
+    .profile-section.active {
+        display: block;
+        animation: fadeInUp 0.4s ease-out;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 968px) {
+        .kozy-profile-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .kozy-profile-sidebar {
+            position: static;
+        }
+
+        .kozy-profile-nav {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .kozy-profile-nav-item {
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+    }
+</style>
+
+<div class="kozy-profile-container animate-fade-in">
+    <div class="kozy-profile-header">
+        <h1 class="kozy-profile-title">
+            <i class="fa-solid fa-user-circle"></i>
+            My Profile
         </h1>
+    </div>
 
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded" role="alert">
-                <p><i class="fa-solid fa-check-circle mr-2"></i>@TempData["SuccessMessage"]</p>
-            </div>
-        }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
+            <i class="fa-solid fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded" role="alert">
-                <p><i class="fa-solid fa-exclamation-circle mr-2"></i>@TempData["ErrorMessage"]</p>
-            </div>
-        }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
+            <i class="fa-solid fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Left Sidebar -->
-            <div class="md:col-span-1">
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="text-center mb-6">
-                        <div class="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mx-auto flex items-center justify-center mb-4">
-                            <i class="fa-solid fa-user text-white text-4xl"></i>
-                        </div>
-                        <h3 class="font-bold text-xl text-gray-800">@Model.Name</h3>
-                        <p class="text-gray-600 text-sm">@Model.Email</p>
-                        <span class="inline-block mt-2 px-3 py-1 rounded-full text-sm @(Model.Role == "Admin" ? "bg-red-100 text-red-800" : "bg-blue-100 text-blue-800")">
-                            <i class="fa-solid @(Model.Role == "Admin" ? "fa-crown" : "fa-user") mr-1"></i>@Model.Role
-                        </span>
-                    </div>
-
-                    <div class="border-t pt-4">
-                        <ul class="space-y-2">
-                            <li>
-                                <a href="#account-details" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded transition profile-tab active">
-                                    <i class="fa-solid fa-user mr-2"></i>Account Details
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#change-password" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded transition profile-tab">
-                                    <i class="fa-solid fa-lock mr-2"></i>Change Password
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#theme-settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded transition profile-tab">
-                                    <i class="fa-solid fa-palette mr-2"></i>Theme Settings
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+    <div class="kozy-profile-layout">
+        <!-- Sidebar -->
+        <aside class="kozy-profile-sidebar">
+            <div class="kozy-profile-avatar">
+                <div class="kozy-avatar-circle">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="kozy-profile-name">@Model.Name</div>
+                <div class="kozy-profile-email">@Model.Email</div>
+                <div class="kozy-profile-role">
+                    <i class="fa-solid @(Model.Role == "Admin" ? "fa-crown" : "fa-user")"></i>
+                    @Model.Role
                 </div>
             </div>
 
-            <!-- Main Content -->
-            <div class="md:col-span-2">
-                <!-- Account Details Section -->
-                <div id="account-details-section" class="profile-section">
-                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                            <i class="fa-solid fa-user mr-2"></i>Account Details
-                        </h2>
+            <nav>
+                <ul class="kozy-profile-nav">
+                    <li class="kozy-profile-nav-item">
+                        <a href="#account-details" class="kozy-profile-nav-link active" data-section="account-details">
+                            <i class="fa-solid fa-user"></i>
+                            <span>Account Details</span>
+                        </a>
+                    </li>
+                    <li class="kozy-profile-nav-item">
+                        <a href="#change-password" class="kozy-profile-nav-link" data-section="change-password">
+                            <i class="fa-solid fa-lock"></i>
+                            <span>Change Password</span>
+                        </a>
+                    </li>
+                    <li class="kozy-profile-nav-item">
+                        <a href="#theme-settings" class="kozy-profile-nav-link" data-section="theme-settings">
+                            <i class="fa-solid fa-palette"></i>
+                            <span>Theme Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
 
-                        <form asp-action="UpdateProfile" method="post">
-                            @Html.AntiForgeryToken()
+        <!-- Main Content -->
+        <main class="kozy-profile-content">
+            <!-- Account Details Section -->
+            <div id="account-details-section" class="profile-section active">
+                <h2 class="kozy-profile-section-title">
+                    <i class="fa-solid fa-user"></i>
+                    Account Details
+                </h2>
 
-                            <div class="mb-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">User ID</label>
-                                <input type="text" value="@Model.UserId" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" disabled />
-                                <small class="text-gray-500">User ID cannot be changed</small>
-                            </div>
+                <form asp-action="UpdateProfile" method="post" id="accountDetailsForm">
+                    @Html.AntiForgeryToken()
 
-                            <div class="mb-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Full Name <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="name" value="@Model.Name" required
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Email Address <span class="text-red-500">*</span>
-                                </label>
-                                <input type="email" name="email" value="@Model.Email" required
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
-                                <input type="text" value="@Model.Role" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" disabled />
-                                <small class="text-gray-500">Role can only be changed by administrators</small>
-                            </div>
-
-                            <div class="flex justify-end">
-                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-150 shadow-md">
-                                    <i class="fa-solid fa-save mr-2"></i>Save Changes
-                                </button>
-                            </div>
-                        </form>
+                    <div class="kozy-form-group">
+                        <label class="kozy-form-label">User ID</label>
+                        <input type="text" value="@Model.UserId" class="kozy-form-input" disabled />
+                        <div class="kozy-form-help">User ID cannot be changed</div>
                     </div>
-                </div>
 
-                <!-- Change Password Section -->
-                <div id="change-password-section" class="profile-section" style="display: none;">
-                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                            <i class="fa-solid fa-lock mr-2"></i>Change Password
-                        </h2>
-
-                        <form asp-action="ChangePassword" method="post">
-                            @Html.AntiForgeryToken()
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Current Password <span class="text-red-500">*</span>
-                                </label>
-                                <input type="password" name="currentPassword" required
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    New Password <span class="text-red-500">*</span>
-                                </label>
-                                <input type="password" name="newPassword" required minlength="6"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                <small class="text-gray-500">Minimum 6 characters</small>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Confirm New Password <span class="text-red-500">*</span>
-                                </label>
-                                <input type="password" name="confirmPassword" required minlength="6"
-                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            </div>
-
-                            <div class="flex justify-end">
-                                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-150 shadow-md">
-                                    <i class="fa-solid fa-key mr-2"></i>Change Password
-                                </button>
-                            </div>
-                        </form>
+                    <div class="kozy-form-group">
+                        <label class="kozy-form-label">
+                            Full Name <span class="required">*</span>
+                        </label>
+                        <input type="text" name="name" value="@Model.Name" required class="kozy-form-input" id="fullNameInput" />
                     </div>
-                </div>
 
-                <!-- Theme Settings Section -->
-                <div id="theme-settings-section" class="profile-section" style="display: none;">
-                    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">
-                            <i class="fa-solid fa-palette mr-2"></i>Theme Settings
-                        </h2>
-
-                        <p class="text-gray-600 mb-6">Choose your preferred theme for the application</p>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Light Theme -->
-                            <div class="border-2 rounded-lg p-4 cursor-pointer theme-option hover:border-blue-500 transition @(ViewBag.CurrentTheme == "light" ? "border-blue-500 bg-blue-50" : "border-gray-300")" data-theme="light">
-                                <div class="flex items-center justify-between mb-3">
-                                    <h3 class="font-bold text-lg">Light Mode</h3>
-                                    <i class="fa-solid fa-sun text-yellow-500 text-2xl"></i>
-                                </div>
-                                <div class="bg-white border border-gray-200 rounded p-3 mb-3">
-                                    <div class="h-2 bg-gray-200 rounded mb-2"></div>
-                                    <div class="h-2 bg-gray-300 rounded w-2/3"></div>
-                                </div>
-                                <p class="text-sm text-gray-600">Classic bright theme with white backgrounds</p>
-                            </div>
-
-                            <!-- Dark Theme -->
-                            <div class="border-2 rounded-lg p-4 cursor-pointer theme-option hover:border-blue-500 transition @(ViewBag.CurrentTheme == "dark" ? "border-blue-500 bg-blue-50" : "border-gray-300")" data-theme="dark">
-                                <div class="flex items-center justify-between mb-3">
-                                    <h3 class="font-bold text-lg">Dark Mode</h3>
-                                    <i class="fa-solid fa-moon text-indigo-500 text-2xl"></i>
-                                </div>
-                                <div class="bg-gray-800 border border-gray-700 rounded p-3 mb-3">
-                                    <div class="h-2 bg-gray-600 rounded mb-2"></div>
-                                    <div class="h-2 bg-gray-500 rounded w-2/3"></div>
-                                </div>
-                                <p class="text-sm text-gray-600">Easy on the eyes with dark backgrounds</p>
-                            </div>
-                        </div>
-
-                        <div class="mt-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
-                            <p class="text-sm text-gray-700">
-                                <i class="fa-solid fa-info-circle mr-2"></i>
-                                Your theme preference will be saved and applied across all pages.
-                            </p>
-                        </div>
+                    <div class="kozy-form-group">
+                        <label class="kozy-form-label">
+                            Email Address <span class="required">*</span>
+                        </label>
+                        <input type="email" name="email" value="@Model.Email" required class="kozy-form-input" id="emailInput" />
                     </div>
-                </div>
 
-                <!-- Account Info -->
-                <div class="bg-gray-100 rounded-lg p-4">
-                    <h3 class="font-semibold text-gray-700 mb-2">
-                        <i class="fa-solid fa-info-circle mr-2"></i>Account Information
-                    </h3>
-                    <div class="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                        <div>
+                    <div class="kozy-form-group">
+                        <label class="kozy-form-label">Role</label>
+                        <input type="text" value="@Model.Role" class="kozy-form-input" disabled />
+                        <div class="kozy-form-help">Role can only be changed by administrators</div>
+                    </div>
+
+                    <div style="text-align: right; margin-top: 2rem;">
+                        <button type="submit" class="kozy-btn-save" id="saveChangesBtn">
+                            <i class="fa-solid fa-save"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+
+                <div class="kozy-account-info">
+                    <div class="kozy-account-info-title">
+                        <i class="fa-solid fa-info-circle"></i>
+                        Account Information
+                    </div>
+                    <div class="kozy-account-info-grid">
+                        <div class="kozy-account-info-item">
                             <strong>Created:</strong> @Model.CreatedTime.ToString("MMM dd, yyyy")
                         </div>
-                        <div>
+                        <div class="kozy-account-info-item">
                             <strong>Last Updated:</strong> @Model.UpdatedTime.ToString("MMM dd, yyyy")
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Change Password Section -->
+            <div id="change-password-section" class="profile-section">
+                <h2 class="kozy-profile-section-title">
+                    <i class="fa-solid fa-lock"></i>
+                    Change Password
+                </h2>
+
+                <form asp-action="ChangePassword" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="kozy-form-group">
+                        <label class="kozy-form-label">
+                            Current Password <span class="required">*</span>
+                        </label>
+                        <input type="password" name="currentPassword" required class="kozy-form-input" />
+                    </div>
+
+                    <div class="kozy-form-group">
+                        <label class="kozy-form-label">
+                            New Password <span class="required">*</span>
+                        </label>
+                        <input type="password" name="newPassword" required minlength="6" class="kozy-form-input" />
+                        <div class="kozy-form-help">Minimum 6 characters</div>
+                    </div>
+
+                    <div class="kozy-form-group">
+                        <label class="kozy-form-label">
+                            Confirm New Password <span class="required">*</span>
+                        </label>
+                        <input type="password" name="confirmPassword" required minlength="6" class="kozy-form-input" />
+                    </div>
+
+                    <div style="text-align: right; margin-top: 2rem;">
+                        <button type="submit" class="kozy-btn-save">
+                            <i class="fa-solid fa-key"></i>
+                            Change Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Theme Settings Section -->
+            <div id="theme-settings-section" class="profile-section">
+                <h2 class="kozy-profile-section-title">
+                    <i class="fa-solid fa-palette"></i>
+                    Theme Settings
+                </h2>
+
+                <p style="color: #6B7280; margin-bottom: 2rem;">Choose your preferred theme for the application</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                    <!-- Light Theme -->
+                    <div class="theme-option" data-theme="light" style="border: 2px solid @(ViewBag.CurrentTheme == "light" ? "#FF8223" : "#E5E7EB"); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.3s ease; background: @(ViewBag.CurrentTheme == "light" ? "rgba(255, 130, 35, 0.05)" : "white");">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="font-weight: 600; color: #2F3030; margin: 0;">Light Mode</h3>
+                            <i class="fa-solid fa-sun" style="font-size: 1.5rem; color: #F59E0B;"></i>
+                        </div>
+                        <div style="background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                            <div style="height: 8px; background: #E5E7EB; border-radius: 4px; margin-bottom: 8px;"></div>
+                            <div style="height: 8px; background: #C3C3C3; border-radius: 4px; width: 66%;"></div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #6B7280; margin: 0;">Classic bright theme with white backgrounds</p>
+                    </div>
+
+                    <!-- Dark Theme -->
+                    <div class="theme-option" data-theme="dark" style="border: 2px solid @(ViewBag.CurrentTheme == "dark" ? "#FF8223" : "#E5E7EB"); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 0.3s ease; background: @(ViewBag.CurrentTheme == "dark" ? "rgba(255, 130, 35, 0.05)" : "white");">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="font-weight: 600; color: #2F3030; margin: 0;">Dark Mode</h3>
+                            <i class="fa-solid fa-moon" style="font-size: 1.5rem; color: #2A5C55;"></i>
+                        </div>
+                        <div style="background: #2F3030; border: 1px solid #374151; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                            <div style="height: 8px; background: #4B5563; border-radius: 4px; margin-bottom: 8px;"></div>
+                            <div style="height: 8px; background: #6B7280; border-radius: 4px; width: 66%;"></div>
+                        </div>
+                        <p style="font-size: 0.875rem; color: #6B7280; margin: 0;">Easy on the eyes with dark backgrounds</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(104, 190, 178, 0.1); border-left: 4px solid #68BEB2; border-radius: 8px; padding: 1rem;">
+                    <p style="font-size: 0.875rem; color: #2F3030; margin: 0;">
+                        <i class="fa-solid fa-info-circle me-2"></i>
+                        Your theme preference will be saved and applied across all pages.
+                    </p>
+                </div>
+            </div>
+        </main>
     </div>
 </div>
 
 <script>
     // Tab switching
-    document.querySelectorAll('.profile-tab').forEach(tab => {
-        tab.addEventListener('click', function(e) {
+    document.querySelectorAll('.kozy-profile-nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
             e.preventDefault();
+            const sectionId = this.getAttribute('data-section') + '-section';
 
-            // Remove active class from all tabs
-            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active', 'bg-gray-100'));
-
-            // Add active class to clicked tab
-            this.classList.add('active', 'bg-gray-100');
-
-            // Hide all sections
-            document.querySelectorAll('.profile-section').forEach(section => section.style.display = 'none');
+            // Update active nav link
+            document.querySelectorAll('.kozy-profile-nav-link').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
 
             // Show selected section
-            const targetId = this.getAttribute('href').substring(1) + '-section';
-            document.getElementById(targetId).style.display = 'block';
+            document.querySelectorAll('.profile-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
         });
     });
+
+    // Enable/disable save button based on form changes
+    const accountForm = document.getElementById('accountDetailsForm');
+    const fullNameInput = document.getElementById('fullNameInput');
+    const emailInput = document.getElementById('emailInput');
+    const saveBtn = document.getElementById('saveChangesBtn');
+    
+    if (accountForm && saveBtn) {
+        const originalName = fullNameInput.value;
+        const originalEmail = emailInput.value;
+
+        function checkFormChanges() {
+            if (fullNameInput.value !== originalName || emailInput.value !== originalEmail) {
+                saveBtn.disabled = false;
+            } else {
+                saveBtn.disabled = true;
+            }
+        }
+
+        fullNameInput.addEventListener('input', checkFormChanges);
+        emailInput.addEventListener('input', checkFormChanges);
+        
+        // Initially disable if no changes
+        checkFormChanges();
+    }
 
     // Theme switching
     document.querySelectorAll('.theme-option').forEach(option => {
@@ -247,11 +558,11 @@
 
             // Update UI
             document.querySelectorAll('.theme-option').forEach(opt => {
-                opt.classList.remove('border-blue-500', 'bg-blue-50');
-                opt.classList.add('border-gray-300');
+                opt.style.borderColor = '#E5E7EB';
+                opt.style.background = 'white';
             });
-            this.classList.remove('border-gray-300');
-            this.classList.add('border-blue-500', 'bg-blue-50');
+            this.style.borderColor = '#FF8223';
+            this.style.background = 'rgba(255, 130, 35, 0.05)';
 
             // Save theme preference
             const formData = new FormData();
@@ -264,31 +575,35 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Apply theme immediately
                     if (selectedTheme === 'dark') {
                         document.documentElement.classList.add('dark-theme');
                     } else {
                         document.documentElement.classList.remove('dark-theme');
                     }
 
-                    // Show success message
-                    const successDiv = document.createElement('div');
-                    successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                    successDiv.innerHTML = '<i class="fa-solid fa-check-circle mr-2"></i>Theme changed successfully!';
-                    document.body.appendChild(successDiv);
-
-                    setTimeout(() => {
-                        successDiv.remove();
-                    }, 3000);
+                    if (typeof showNotificationToast !== 'undefined') {
+                        showNotificationToast('Theme changed successfully!', 'success');
+                    }
                 }
             });
         });
     });
-</script>
 
-<style>
-    .profile-tab.active {
-        background-color: #f3f4f6;
-        font-weight: 600;
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <text>
+        if (typeof showNotificationToast !== 'undefined') {
+            showNotificationToast('@TempData["SuccessMessage"]', 'success');
+        }
+        </text>
     }
-</style>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <text>
+        if (typeof showNotificationToast !== 'undefined') {
+            showNotificationToast('@TempData["ErrorMessage"]', 'danger');
+        }
+        </text>
+    }
+</script>

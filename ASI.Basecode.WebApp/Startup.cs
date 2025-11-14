@@ -78,89 +78,124 @@ namespace ASI.Basecode.WebApp
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
-        /// <summary>
-        /// Use this method to add services to the container.
-        /// </summary>
-        /// <param name="services">Services</param>
-        public void ConfigureServices(IServiceCollection services)
+        /// <summary>
+        /// Configures application services including dependency injection, database context, 
+        /// authentication, authorization, and middleware components.
+        /// </summary>
+        /// <param name="services">Service collection to configure</param>
+        public void ConfigureServices(IServiceCollection services)
         {
             this._services = services;
 
+            // ============================================
+            // CACHING SERVICES
+            // ============================================
             services.AddMemoryCache();
+            services.AddResponseCaching();
 
-            // Register SQL database configuration context as services.
-            services.AddDbContext<AsiBasecodeDBContext>(options =>
+            // ============================================
+            // DATABASE CONFIGURATION
+            // ============================================
+            services.AddDbContext<AsiBasecodeDBContext>(options =>
             {
                 options.UseSqlServer(
                   Configuration.GetConnectionString("DefaultConnection"),
                   sqlServerOptions => sqlServerOptions.CommandTimeout(120));
             });
 
+            // ============================================
+            // MVC AND RAZOR PAGES
+            // ============================================
             services.AddControllersWithViews();
             services.AddRazorPages().AddRazorRuntimeCompilation();
 
-            //Configuration
-            services.Configure<TokenAuthentication>(Configuration.GetSection("TokenAuthentication"));
+            // ============================================
+            // CONFIGURATION BINDING
+            // ============================================
+            services.Configure<TokenAuthentication>(Configuration.GetSection("TokenAuthentication"));
 
-            // Session
+            // ============================================
+            // SESSION CONFIGURATION
+            // ============================================
             services.AddSession(options =>
             {
                 options.Cookie.Name = Const.Issuer;
             });
 
-            // DI Services AutoMapper(Add Profile)
-            this.ConfigureAutoMapper();
+            // ============================================
+            // DEPENDENCY INJECTION SETUP
+            // ============================================
+            this.ConfigureAutoMapper();
+            this.ConfigureOtherServices();
+            this.ConfigureAuthorization();
 
-            // DI Services
-            // --- START: ADDED BOOK CRUD REGISTRATION ---
-            //            services.AddScoped<IBookRepository, BookRepository>();
-            //            services.AddScoped<IBookService, BookService>();
-            // --- END: ADDED BOOK CRUD REGISTRATION ---
-
-            this.ConfigureOtherServices();
-
-            // Authorization (Add Policy)
-            this.ConfigureAuthorization();
-
+            // ============================================
+            // FILE UPLOAD CONFIGURATION
+            // ============================================
             services.Configure<FormOptions>(options =>
             {
-                options.ValueLengthLimit = 1024 * 1024 * 100;
+                options.ValueLengthLimit = 1024 * 1024 * 100; // 100MB limit
             });
 
+            // ============================================
+            // FILE PROVIDER CONFIGURATION
+            // ============================================
             services.AddSingleton<IFileProvider>(
               new PhysicalFileProvider(
                 Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
         }
 
-        /// <summary>
-        /// Configure application
-        /// </summary>
-        /// <param name="app"></param>
-        /// <param name="env"></param>
-        public void ConfigureApp(IApplicationBuilder app, IWebHostEnvironment env)
+        /// <summary>
+        /// Configures the HTTP request pipeline with middleware components.
+        /// Middleware order is critical and must follow the sequence defined here.
+        /// </summary>
+        /// <param name="app">Application builder for configuring middleware pipeline</param>
+        /// <param name="env">Hosting environment information</param>
+        public void ConfigureApp(IApplicationBuilder app, IWebHostEnvironment env)
         {
             this._app = app;
             this._environment = env;
 
+            // ============================================
+            // SECURITY MIDDLEWARE
+            // ============================================
             if (!this._environment.IsDevelopment())
             {
                 this._app.UseHsts();
             }
 
+            // ============================================
+            // LOGGING CONFIGURATION
+            // ============================================
             this.ConfigureLogger();
 
+            // ============================================
+            // AUTHENTICATION MIDDLEWARE
+            // ============================================
             this._app.UseTokenProvider(_tokenProviderOptions);
 
+            // ============================================
+            // HTTP AND STATIC FILES
+            // ============================================
             this._app.UseHttpsRedirection();
             this._app.UseStaticFiles();
+            this._app.UseResponseCaching();
 
-            // Localization
-            var options = this._app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            // ============================================
+            // LOCALIZATION
+            // ============================================
+            var options = this._app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
             this._app.UseRequestLocalization(options.Value);
 
+            // ============================================
+            // SESSION AND ROUTING
+            // ============================================
             this._app.UseSession();
             this._app.UseRouting();
 
+            // ============================================
+            // AUTHENTICATION AND AUTHORIZATION
+            // ============================================
             this._app.UseAuthentication();
             this._app.UseAuthorization();
         }

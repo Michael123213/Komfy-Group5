@@ -2,62 +2,316 @@
 @using static ASI.Basecode.Resources.Views.Screen
 @section styles {
     <link rel="stylesheet" href="~/css/login.css" />
+    <style>
+        .kozy-login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #E1D1AB 0%, #FDFBF2 50%, #E1D1AB 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+        }
+
+        .kozy-login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 130, 35, 0.1);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .kozy-login-container::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -5%;
+            width: 350px;
+            height: 350px;
+            background: rgba(104, 190, 178, 0.1);
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        @@keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(5deg); }
+        }
+
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .kozy-login-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            max-width: 1000px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.6s ease-out;
+            display: flex;
+            min-height: 600px;
+        }
+
+        .kozy-login-form-section {
+            flex: 1;
+            padding: 3.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .kozy-logo-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            background: linear-gradient(135deg, #FF8223 0%, #FFA45F 100%);
+            min-height: 600px;
+        }
+
+        .kozy-logo-section-content {
+            text-align: center;
+        }
+
+        .kozy-logo-section-content i {
+            font-size: 10rem;
+            color: rgba(255, 255, 255, 0.25);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .kozy-form-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .kozy-form-header-logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2F3030;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .kozy-form-header-tagline {
+            color: #6B7280;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .kozy-form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .kozy-form-label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #2F3030;
+            font-size: 0.875rem;
+        }
+
+        .kozy-form-input-wrapper {
+            position: relative;
+        }
+
+        .kozy-form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #C3C3C3;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: #2F3030;
+        }
+
+        .kozy-form-input:focus {
+            outline: none;
+            border-color: #FF8223;
+            box-shadow: 0 0 0 3px rgba(255, 130, 35, 0.1);
+        }
+
+        .kozy-form-input::placeholder {
+            color: #9CA3AF;
+        }
+
+        .kozy-password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #6B7280;
+            transition: color 0.3s ease;
+        }
+
+        .kozy-password-toggle:hover {
+            color: #FF8223;
+        }
+
+        .kozy-btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: #FF8223;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 130, 35, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        .kozy-btn-login:hover {
+            background: #FFA45F;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 130, 35, 0.4);
+        }
+
+        .kozy-btn-signup {
+            padding: 1rem 2rem;
+            background: #68BEB2;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(104, 190, 178, 0.3);
+        }
+
+        .kozy-btn-signup:hover {
+            background: #2A5C55;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(104, 190, 178, 0.4);
+            color: white;
+        }
+
+        .kozy-forgot-link {
+            color: #6B7280;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+
+        .kozy-forgot-link:hover {
+            color: #FF8223;
+        }
+
+        .kozy-signup-section {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .kozy-signup-text {
+            color: #6B7280;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        @@media (max-width: 991px) {
+            .kozy-logo-section {
+                display: none;
+            }
+
+            .kozy-login-card {
+                max-width: 500px;
+            }
+
+            .kozy-login-form-section {
+                padding: 2.5rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .kozy-login-container {
+                padding: 1rem;
+            }
+
+            .kozy-login-form-section {
+                padding: 2rem;
+            }
+        }
+    </style>
 }
 @{
     ViewBag.LoginView = true;
-    ViewData["Title"] = "Login Page";
+    ViewData["Title"] = "Login - KOZY";
 }
-<div>
-    @Html.AntiForgeryToken()
-</div>
-<div class="container py-5" style="display:flex; align-content:center;height:calc(100vh - 64px)">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-xl-10">
-            <div class="card rounded-3 text-black">
-                <div class="row g-0 w-1000px">
-                    <div class="col-lg-6">
-                        <div class="card-body p-md-5 mx-md-4">
-                            <div class="text-center">
-                                <img src="~/img/asi-logo-invert.svg"
-                                     style="width: 185px;" alt="logo">
-                            </div>
-                            <form method="post" action="/Account/Login" id="loginForm">
-                                <div class="form-outline mb-4">
-                                    <label class="form-label" for="form2Example11">@UserId</label>
-                                    <input type="text" id="form2Example11" class="form-control"
-                                           asp-for="UserId" placeholder="Enter userid" />
-                                    <span asp-validation-for="UserId" class="text-danger"></span>
-                                </div>
-                                <div class="form-outline mb-4">
-                                    <label class="form-label" for="form2Example22">@Password</label>
-                                    <div class="position-relative">
-                                        <input type="password" id="form2Example22" class="form-control"
-                                               asp-for="Password" placeholder="Enter password" />
-                                        <i class="fa-solid fa-eye-slash position-absolute toggle-password"
-                                           style="top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: #6c757d;"
-                                           onclick="togglePassword('form2Example22', this)"></i>
-                                    </div>
-                                    <span asp-validation-for="Password" class="text-danger"></span>
-                                </div>
-                                <div class="text-center pt-1 mb-5 pb-1 d-flex flex-column align-items-center">
-                                    <button class="btn btn-primary btn-block login-btn gradient-custom-2 mb-3" type="submit">
-                                        @Login
-                                    </button>
-                                    <div>
-                                        <a class="text-muted" asp-controller="Account" asp-action="ForgotPassword">@ForgotPass</a>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-center pb-4">
-                                    <p class="mb-0 me-2 mr-1">@DontHaveAcc</p>
-                                    <a asp-controller="Account" asp-action="Register" class="btn btn-outline-danger">@CreateNew</a>
-                                </div>
-                            </form>
-                        </div>
+<div class="kozy-login-container">
+    <div class="kozy-login-card">
+        <!-- Left Section: Form -->
+        <div class="kozy-login-form-section">
+            <div class="kozy-form-header">
+                <div class="kozy-form-header-logo">KOZY.</div>
+                <div class="kozy-form-header-tagline">A LIBRARY SORTING SYSTEM</div>
+            </div>
+            
+            <form method="post" action="/Account/Login" id="loginForm">
+                <div class="kozy-form-group">
+                    <label class="kozy-form-label" for="form2Example11">@UserId</label>
+                    <div class="kozy-form-input-wrapper">
+                        <input type="text" id="form2Example11" class="kozy-form-input"
+                               asp-for="UserId" placeholder="Enter userid" />
                     </div>
-                    <div class="col-lg-6 d-flex">
-                        <img style="width:400px"src="~/img/LiveIT.png" />
-                    </div>
+                    <span asp-validation-for="UserId" class="text-danger"></span>
                 </div>
+                
+                <div class="kozy-form-group">
+                    <label class="kozy-form-label" for="form2Example22">@Password</label>
+                    <div class="kozy-form-input-wrapper">
+                        <input type="password" id="form2Example22" class="kozy-form-input"
+                               asp-for="Password" placeholder="Enter password" />
+                        <i class="fa-solid fa-eye-slash kozy-password-toggle"
+                           onclick="togglePassword('form2Example22', this)"></i>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                
+                <div class="text-center mb-4">
+                    <a class="kozy-forgot-link" asp-controller="Account" asp-action="ForgotPassword">
+                        @ForgotPass
+                    </a>
+                </div>
+                
+                <button class="kozy-btn-login" type="submit">
+                    @Login
+                </button>
+                
+                <div class="kozy-signup-section">
+                    <p class="kozy-signup-text">@DontHaveAcc</p>
+                    <a asp-controller="Account" asp-action="Register" class="kozy-btn-signup">
+                        @CreateNew
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Section: Orange with Book Icon -->
+        <div class="kozy-logo-section d-none d-lg-flex">
+            <div class="kozy-logo-section-content">
+                <i class="fa-solid fa-book-open"></i>
             </div>
         </div>
     </div>
@@ -65,13 +319,15 @@
 
 @section scripts {
     <script>
-        // Check for error message and display Toastr notification
         var errorMessage = '@TempData["ErrorMessage"]';
         if (errorMessage) {
-            toastr.error(errorMessage);
+            if (typeof showNotificationToast !== 'undefined') {
+                showNotificationToast(errorMessage, 'danger');
+            } else if (typeof toastr !== 'undefined') {
+                toastr.error(errorMessage);
+            }
         }
 
-        // Toggle password visibility
         function togglePassword(inputId, iconElement) {
             const passwordInput = document.getElementById(inputId);
             const icon = iconElement;

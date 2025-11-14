@@ -11,6 +11,10 @@ using System.Linq;
 
 namespace ASI.Basecode.WebApp.Controllers
 {
+    /// <summary>
+    /// Controller for managing book-related operations including listing, searching, filtering, and CRUD operations.
+    /// Requires user authentication for all actions.
+    /// </summary>
     [Authorize]
     public class BookController : Controller
     {
@@ -19,7 +23,13 @@ namespace ASI.Basecode.WebApp.Controllers
         private readonly IReviewService _reviewService;
         private readonly IBorrowingService _borrowingService;
 
-        // Inject IBookService, IReviewService, and IBorrowingService
+        /// <summary>
+        /// Initializes a new instance of the BookController with required service dependencies.
+        /// </summary>
+        /// <param name="logger">Logger instance for error tracking and debugging</param>
+        /// <param name="bookService">Service for book-related business logic</param>
+        /// <param name="reviewService">Service for review-related operations</param>
+        /// <param name="borrowingService">Service for borrowing history operations</param>
         public BookController(ILogger<BookController> logger, IBookService bookService, IReviewService reviewService, IBorrowingService borrowingService)
         {
             _logger = logger;
@@ -28,13 +38,24 @@ namespace ASI.Basecode.WebApp.Controllers
             _borrowingService = borrowingService;
         }
 
-        // GET: /Book/Index (READ: List all available books with pagination)
+        /// <summary>
+        /// Displays the book catalog page with pagination, search, and filtering capabilities.
+        /// </summary>
+        /// <param name="searchTerm">Search term to filter books by title, code, author, genre, or description</param>
+        /// <param name="genre">Filter books by genre</param>
+        /// <param name="author">Filter books by author name</param>
+        /// <param name="publisher">Filter books by publisher</param>
+        /// <param name="yearPublished">Filter books by publication year</param>
+        /// <param name="minRating">Filter books by minimum average rating</param>
+        /// <param name="page">Current page number for pagination (default: 1)</param>
+        /// <returns>View displaying filtered and paginated book list</returns>
         public IActionResult Index(string searchTerm, string genre, string author, string publisher, int? yearPublished, decimal? minRating, int page = 1)
         {
             const int pageSize = 10;
             List<BookModel> books;
             int totalCount;
 
+            // Handle search functionality
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 books = _bookService.SearchBooks(searchTerm);
@@ -44,20 +65,41 @@ namespace ASI.Basecode.WebApp.Controllers
             }
             else
             {
+                // Standard paginated book listing
                 var result = _bookService.GetAllBooksPaginated(page, pageSize);
                 books = result.Books;
                 totalCount = result.TotalCount;
             }
 
-            // Populate review data for each book
+            // Performance optimization: Load reviews and borrowings in bulk to avoid N+1 query problem
+            // This reduces database round trips from N queries to 2 queries total
+            var bookIds = books.Select(b => b.BookID).ToList();
+            var allReviews = _reviewService.GetAllReviews()
+                .Where(r => bookIds.Contains(r.BookID))
+                .GroupBy(r => r.BookID)
+                .ToDictionary(g => g.Key, g => g.ToList());
+            
+            var allBorrowings = _borrowingService.GetAllBorrowings()
+                .Where(b => bookIds.Contains(b.BookID))
+                .GroupBy(b => b.BookID)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // Populate review statistics for each book using pre-loaded data
             foreach (var book in books)
             {
-                book.AverageRating = _reviewService.GetAverageRatingForBook(book.BookID);
-                var reviews = _reviewService.GetReviewsByBookId(book.BookID);
-                book.ReviewCount = reviews.Count;
+                if (allReviews.TryGetValue(book.BookID, out var reviews))
+                {
+                    book.ReviewCount = reviews.Count;
+                    book.AverageRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+                }
+                else
+                {
+                    book.ReviewCount = 0;
+                    book.AverageRating = 0;
+                }
             }
 
-            // Apply filters
+            // Apply additional filters to the book list
             if (!string.IsNullOrWhiteSpace(genre))
             {
                 books = books.Where(b => b.Genre != null && b.Genre.Equals(genre, System.StringComparison.OrdinalIgnoreCase)).ToList();
@@ -88,23 +130,23 @@ namespace ASI.Basecode.WebApp.Controllers
                 ViewBag.SelectedRating = minRating.Value;
             }
 
-            // Get unique values for filter dropdowns (from all books)
+            // Prepare filter dropdown options from all books in the system
             var allBooks = _bookService.GetAllBooks();
             ViewBag.Genres = allBooks.Where(b => !string.IsNullOrWhiteSpace(b.Genre)).Select(b => b.Genre).Distinct().OrderBy(g => g).ToList();
             ViewBag.Authors = allBooks.Where(b => !string.IsNullOrWhiteSpace(b.Author)).Select(b => b.Author).Distinct().OrderBy(a => a).ToList();
             ViewBag.Publishers = allBooks.Where(b => !string.IsNullOrWhiteSpace(b.Publisher)).Select(b => b.Publisher).Distinct().OrderBy(p => p).ToList();
             ViewBag.Years = allBooks.Where(b => b.DatePublished.HasValue).Select(b => b.DatePublished.Value.Year).Distinct().OrderByDescending(y => y).ToList();
 
-            // Pass reviews to ViewBag for display in modals
+            // Prepare review data for modal display using pre-loaded bulk data
             ViewBag.AllReviews = books.ToDictionary(
                 b => b.BookID,
-                b => _reviewService.GetReviewsByBookId(b.BookID)
+                b => allReviews.TryGetValue(b.BookID, out var reviews) ? reviews : new List<ReviewModel>()
             );
 
-            // Pass borrowing history to ViewBag for display in modals
+            // Prepare borrowing history for modal display using pre-loaded bulk data
             ViewBag.AllBorrowings = books.ToDictionary(
                 b => b.BookID,
-                b => _borrowingService.GetBorrowingsByBookId(b.BookID)
+                b => allBorrowings.TryGetValue(b.BookID, out var borrowings) ? borrowings : new List<BorrowingModel>()
             );
 
             // Pagination data

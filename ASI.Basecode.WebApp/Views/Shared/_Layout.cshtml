@@ -1,19 +1,36 @@
-﻿@using static ASI.Basecode.Resources.Views.Screen
+﻿@* 
+    Main Layout Template
+    Provides the base HTML structure, CSS/JS includes, and layout containers for all pages.
+    Handles conditional rendering for authenticated vs. unauthenticated views.
+*@
+@using static ASI.Basecode.Resources.Views.Screen
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    @* Meta Tags and Page Title *@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
+    
+    @* Core CSS Framework and Stylesheets *@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/main.css" />
     <link rel="stylesheet" href="~/css/style.css" />
+    <link rel="stylesheet" href="~/css/kozy-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
+    
+    @* External CSS Resources *@
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    
+    @* Page-specific styles (rendered by individual views) *@
     @RenderSection("Styles", required: false)
 
-    <!-- Dark Mode Styles -->
+    @* ============================================
+       DARK MODE THEME STYLES
+       ============================================ *@
     <style>
         :root {
             --bg-primary: #ffffff;
@@ -127,16 +144,18 @@
             color: var(--text-primary) !important;
         }
 
-        /* Smooth transitions */
+        @* Smooth theme transition animations *@
         body, .bg-white, .card, input, textarea, select, .modal-content {
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
     </style>
 
-    <!-- Theme Initialization Script (runs before page render) -->
+    @* ============================================
+       THEME INITIALIZATION
+       ============================================ *@
+    @* Initialize dark mode theme from cookie before page render to prevent flash *@
     <script>
         (function() {
-            // Get theme from cookie
             const theme = document.cookie.split('; ').find(row => row.startsWith('theme='));
             if (theme && theme.split('=')[1] === 'dark') {
                 document.documentElement.classList.add('dark-theme');
@@ -144,36 +163,197 @@
         })();
     </script>
 </head>
-<body>
-    @Html.Partial("_Header")
-    <div class="container">
-        <main role="main">
+<body class="page-load">
+    @* ============================================
+       HEADER RENDERING
+       ============================================ *@
+    @* Render header for authenticated users and non-login pages *@
+    @if (ViewBag.LoginView != true && User.Identity.IsAuthenticated)
+    {
+        <partial name="_Header" />
+    }
+    else if (ViewBag.LoginView != true)
+    {
+        <partial name="_Header" />
+    }
+    
+    @* ============================================
+       MAIN CONTENT AREA
+       ============================================ *@
+    @* Render authentication pages (Login, Register) in centered container *@
+    @if (ViewBag.LoginView == true)
+    {
+        @* Add landing-page class to auth-container when on landing page for more reliable CSS targeting *@
+        var isLandingPage = ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Landing";
+        <div class="auth-container @(isLandingPage ? "landing-page-container" : "")">
             @RenderBody()
-        </main>
-    </div>
-    <footer class="border-top footer text-muted">
+        </div>
+    }
+    else
+    {
+        @* Render main application pages with sidebar layout *@
+        <div class="kozy-main-content @(ViewBag.LoginView == true ? "" : "")">
+            <div class="kozy-content-wrapper">
+                <main role="main">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    }
+    
+    @* ============================================
+       LANDING PAGE STYLE OVERRIDES
+       ============================================ *@
+    @* Override layout wrapper styles specifically for landing page to ensure full-width display *@
+    @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Landing")
+    {
+        <style>
+            @* Reset auth-container styles for landing page - AGGRESSIVE OVERRIDES *@
+            .auth-container.landing-page-container,
+            .auth-container:has(#landing-page),
+            body .auth-container.landing-page-container,
+            html body .auth-container.landing-page-container {
+                margin-left: 0 !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                overflow-y: visible !important;
+                overflow-x: hidden !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: auto !important;
+                max-height: none !important;
+                display: block !important;
+                align-items: stretch !important;
+                justify-content: flex-start !important;
+            }
+            
+            @* Remove scrollbar from body and html *@
+            body,
+            html {
+                overflow-y: visible !important;
+                overflow-x: hidden !important;
+                height: auto !important;
+                max-height: none !important;
+                padding-bottom: 0 !important;
+                margin-bottom: 0 !important;
+            }
+            
+            @* Reset main content wrapper styles for landing page *@
+            .kozy-main-content,
+            .kozy-content-wrapper {
+                margin-left: 0 !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                overflow-y: visible !important;
+                overflow-x: hidden !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+            
+            @* Override .main class from style.css to prevent internal scrollbars *@
+            main,
+            .main,
+            .main-container,
+            .navcontainer {
+                overflow-y: visible !important;
+                overflow-x: hidden !important;
+                height: auto !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-height: none !important;
+            }
+            
+            @* Additional specific overrides for main element and .main class on landing page *@
+            body:has(#landing-page) main,
+            body:has(#landing-page) .main,
+            .auth-container:has(#landing-page) main,
+            .auth-container:has(#landing-page) .main,
+            main:has(#landing-page) {
+                height: auto !important;
+                overflow-y: visible !important;
+                overflow-x: hidden !important;
+                padding: 0 !important;
+                max-height: none !important;
+            }
+            
+            @* Ensure body and html use browser scrollbar only and extend background *@
+            body,
+            html {
+                overflow-x: hidden !important;
+                overflow-y: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                padding-bottom: 0 !important;
+                margin-bottom: 0 !important;
+                height: auto !important;
+                max-height: none !important;
+                background: linear-gradient(135deg, #FDFBF2 0%, #E1D1AB 50%, #FDFBF2 100%) !important;
+                background-attachment: fixed !important;
+            }
+            
+            @* Remove overflow restrictions from container elements *@
+            .wrapper,
+            .container-fluid,
+            .container {
+                overflow: visible !important;
+            }
+            
+            @* Remove footer margin from body *@
+            body {
+                margin-bottom: 0 !important;
+            }
+        </style>
+    }
+    
+    @* ============================================
+       FOOTER
+       ============================================ *@
+    @* Footer is hidden across all pages *@
+    <footer class="border-top footer text-muted" style="display: none !important;">
         <div class="container">
             @Copyright
         </div>
     </footer>
+    
+    @* ============================================
+       UI COMPONENTS
+       ============================================ *@
+    @* Mobile overlay backdrop for sidebar on small screens *@
+    <div class="kozy-mobile-overlay"></div>
+    
+    @* Toast notification container *@
+    <div class="kozy-toast-container"></div>
 
+    @* ============================================
+       JAVASCRIPT LIBRARIES
+       ============================================ *@
+    @* Core JavaScript Libraries *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.js"></script>
+    <script src="~/js/kozy-ui.js" asp-append-version="true"></script>
+    
+    @* Form Validation Libraries *@
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    
+    @* External JavaScript Resources *@
     <script src="https://kit.fontawesome.com/7a7c645416.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    
+    @* Toastr Notification Configuration *@
     <script>
-        // Configure Toastr options
         toastr.options = {
-            positionClass: "toast-top-center", // Set the notification position to center
+            positionClass: "toast-top-center",
             timeOut: 3000,
             closeButton: true,
             progressBar: true
         };
     </script>
+    
+    @* Page-specific scripts (rendered by individual views) *@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
