@@ -39,9 +39,32 @@
         <!-- Genre Field -->
         <div class="mb-4">
             <label asp-for="Genre" class="block text-gray-700 text-sm font-bold mb-2"></label>
-            <input asp-for="Genre" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <select id="genreSelect" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" onchange="toggleCustomGenre()">
+                <option value="">-- Select Genre --</option>
+                <option value="Fiction">Fiction</option>
+                <option value="Science">Science</option>
+                <option value="History">History</option>
+                <option value="Biography">Biography</option>
+                <option value="Technology">Technology</option>
+                <option value="Mystery">Mystery</option>
+                <option value="Romance">Romance</option>
+                <option value="Fantasy">Fantasy</option>
+                <option value="Self-Help">Self-Help</option>
+                <option value="Business">Business</option>
+                <option value="Other">Other (Custom Genre)</option>
+            </select>
             <span asp-validation-for="Genre" class="text-red-500 text-xs italic"></span>
         </div>
+
+        <!-- Custom Genre Input (Hidden by default) -->
+        <div id="customGenreDiv" class="mb-4" style="display: none;">
+            <label for="customGenreInput" class="block text-gray-700 text-sm font-bold mb-2">Custom Genre</label>
+            <input type="text" id="customGenreInput" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Enter custom genre" />
+            <p class="text-gray-600 text-xs mt-1">Enter a new genre name</p>
+        </div>
+
+        <!-- Hidden field to submit the actual genre value -->
+        <input type="hidden" asp-for="Genre" id="genreHiddenField" />
 
         <!-- Publisher Field -->
         <div class="mb-4">
@@ -148,6 +171,58 @@
                 previewDiv.classList.add('hidden');
             }
         }
+
+        function toggleCustomGenre() {
+            const genreSelect = document.getElementById('genreSelect');
+            const customGenreDiv = document.getElementById('customGenreDiv');
+            const customGenreInput = document.getElementById('customGenreInput');
+            const genreHiddenField = document.getElementById('genreHiddenField');
+
+            if (genreSelect.value === 'Other') {
+                customGenreDiv.style.display = 'block';
+                customGenreInput.focus();
+                // Don't set hidden field here - wait for user input
+            } else {
+                customGenreDiv.style.display = 'none';
+                customGenreInput.value = '';
+                genreHiddenField.value = genreSelect.value;
+            }
+        }
+
+        // Initialize the form with existing genre value
+        document.addEventListener('DOMContentLoaded', function() {
+            const customGenreInput = document.getElementById('customGenreInput');
+            const genreHiddenField = document.getElementById('genreHiddenField');
+            const genreSelect = document.getElementById('genreSelect');
+            const currentGenre = '@Model.Genre';
+
+            // Check if current genre matches any predefined option
+            const predefinedGenres = ['Fiction', 'Science', 'History', 'Biography', 'Technology', 'Mystery', 'Romance', 'Fantasy', 'Self-Help', 'Business'];
+
+            if (currentGenre && predefinedGenres.includes(currentGenre)) {
+                genreSelect.value = currentGenre;
+                genreHiddenField.value = currentGenre;
+            } else if (currentGenre) {
+                // Custom genre
+                genreSelect.value = 'Other';
+                customGenreInput.value = currentGenre;
+                genreHiddenField.value = currentGenre;
+                document.getElementById('customGenreDiv').style.display = 'block';
+            }
+
+            // Update hidden field when custom genre is typed
+            customGenreInput.addEventListener('input', function() {
+                if (genreSelect.value === 'Other') {
+                    genreHiddenField.value = customGenreInput.value;
+                }
+            });
+
+            genreSelect.addEventListener('change', function() {
+                if (genreSelect.value !== 'Other') {
+                    genreHiddenField.value = genreSelect.value;
+                }
+            });
+        });
     </script>
 }
 
