@@ -347,6 +347,19 @@ namespace ASI.Basecode.WebApp.Controllers
             // Increment view count when viewing details
             _bookService.IncrementViewCount(id);
 
+            // Load reviews for this book
+            var reviews = _reviewService.GetReviewsByBookId(id);
+            ViewBag.Reviews = reviews;
+            ViewBag.AverageRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0;
+            ViewBag.ReviewCount = reviews.Count;
+
+            // Load borrowing history for this book
+            var borrowings = _borrowingService.GetAllBorrowings()
+                .Where(b => b.BookID == id)
+                .OrderByDescending(b => b.BorrowDate)
+                .ToList();
+            ViewBag.Borrowings = borrowings;
+
             return View(book);
         }
 

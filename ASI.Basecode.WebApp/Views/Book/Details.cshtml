@@ -1,0 +1,770 @@
+@model ASI.Basecode.Services.ServiceModels.BookModel
+
+@{
+    ViewData["Title"] = Model.Title + " - KOZY";
+    var reviews = ViewBag.Reviews as List<ASI.Basecode.Services.ServiceModels.ReviewModel> ?? new List<ASI.Basecode.Services.ServiceModels.ReviewModel>();
+    var averageRating = ViewBag.AverageRating != null ? (double)ViewBag.AverageRating : 0;
+    var reviewCount = ViewBag.ReviewCount != null ? (int)ViewBag.ReviewCount : 0;
+    var borrowings = ViewBag.Borrowings as List<ASI.Basecode.Services.ServiceModels.BorrowingModel> ?? new List<ASI.Basecode.Services.ServiceModels.BorrowingModel>();
+}
+
+<style>
+    .kozy-book-details-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .kozy-book-details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .kozy-back-button {
+        background: #68BEB2;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .kozy-back-button:hover {
+        background: #2A5C55;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(104, 190, 178, 0.3);
+    }
+
+    .kozy-book-details-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .kozy-book-details-grid {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 3rem;
+        margin-bottom: 2rem;
+    }
+
+    .kozy-book-cover-large {
+        width: 100%;
+        height: 500px;
+        object-fit: cover;
+        border-radius: 16px;
+        background: #C3C3C3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .kozy-book-info-section h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2F3030;
+        margin-bottom: 1rem;
+    }
+
+    .kozy-book-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #E5E7EB;
+    }
+
+    .kozy-book-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6B7280;
+        font-size: 0.95rem;
+    }
+
+    .kozy-book-meta-item i {
+        color: #FF8223;
+    }
+
+    .kozy-rating-display {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .kozy-rating-stars {
+        display: flex;
+        gap: 0.25rem;
+        color: #F59E0B;
+        font-size: 1.5rem;
+    }
+
+    .kozy-rating-text {
+        color: #6B7280;
+        font-size: 1rem;
+    }
+
+    .kozy-status-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .kozy-status-available {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+
+    .kozy-status-borrowed {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .kozy-description-section {
+        margin-bottom: 2rem;
+    }
+
+    .kozy-description-section h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 1rem;
+    }
+
+    .kozy-description-text {
+        color: #4B5563;
+        line-height: 1.8;
+        font-size: 1rem;
+    }
+
+    .kozy-action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #E5E7EB;
+    }
+
+    .kozy-btn-action {
+        padding: 0.875rem 1.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .kozy-btn-borrow {
+        background: #10B981;
+        color: white;
+    }
+
+    .kozy-btn-borrow:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+
+    .kozy-btn-review {
+        background: #F59E0B;
+        color: white;
+    }
+
+    .kozy-btn-review:hover {
+        background: #D97706;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        color: white;
+    }
+
+    .kozy-btn-history {
+        background: #68BEB2;
+        color: white;
+    }
+
+    .kozy-btn-history:hover {
+        background: #2A5C55;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(104, 190, 178, 0.3);
+        color: white;
+    }
+
+    .kozy-btn-edit {
+        background: #FF8223;
+        color: white;
+    }
+
+    .kozy-btn-edit:hover {
+        background: #FFA45F;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 130, 35, 0.3);
+        color: white;
+    }
+
+    .kozy-btn-delete {
+        background: #EF4444;
+        color: white;
+    }
+
+    .kozy-btn-delete:hover {
+        background: #DC2626;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        color: white;
+    }
+
+    .kozy-btn-disabled {
+        background: #C3C3C3;
+        color: white;
+        cursor: not-allowed;
+    }
+
+    .kozy-reviews-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .kozy-reviews-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #E5E7EB;
+    }
+
+    .kozy-reviews-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2F3030;
+    }
+
+    .kozy-review-item {
+        padding: 1.5rem;
+        border-bottom: 1px solid #E5E7EB;
+        margin-bottom: 1rem;
+    }
+
+    .kozy-review-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .kozy-review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.75rem;
+    }
+
+    .kozy-review-user {
+        font-weight: 600;
+        color: #2F3030;
+    }
+
+    .kozy-review-date {
+        color: #6B7280;
+        font-size: 0.875rem;
+    }
+
+    .kozy-review-rating {
+        color: #F59E0B;
+        margin-bottom: 0.5rem;
+    }
+
+    .kozy-review-comment {
+        color: #4B5563;
+        line-height: 1.6;
+    }
+
+    .kozy-borrow-form,
+    .kozy-review-form {
+        background: #F9FAFB;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .kozy-form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .kozy-form-label {
+        display: block;
+        font-weight: 600;
+        color: #2F3030;
+        margin-bottom: 0.5rem;
+    }
+
+    .kozy-form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .kozy-form-input:focus {
+        outline: none;
+        border-color: #FF8223;
+        box-shadow: 0 0 0 3px rgba(255, 130, 35, 0.1);
+    }
+
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 0.25rem;
+    }
+
+    .star-rating input[type="radio"] {
+        display: none;
+    }
+
+    .star-rating label {
+        font-size: 1.5rem;
+        color: #D1D5DB;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .star-rating input[type="radio"]:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #F59E0B;
+    }
+
+    .kozy-textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #E5E7EB;
+        border-radius: 8px;
+        font-size: 1rem;
+        min-height: 120px;
+        resize: vertical;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .kozy-textarea:focus {
+        outline: none;
+        border-color: #FF8223;
+        box-shadow: 0 0 0 3px rgba(255, 130, 35, 0.1);
+    }
+
+    @@media (max-width: 768px) {
+        .kozy-book-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .kozy-book-cover-large {
+            height: 400px;
+        }
+    }
+</style>
+
+<div class="kozy-book-details-container animate-fade-in">
+    <div class="kozy-book-details-header">
+        <a asp-action="Index" class="kozy-back-button">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Catalog
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
+            <i class="fa-solid fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 12px; border: none; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); margin-bottom: 2rem;">
+            <i class="fa-solid fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="kozy-book-details-card">
+        <div class="kozy-book-details-grid">
+            <!-- Book Cover -->
+            <div>
+                <div class="kozy-book-cover-large">
+                    @if (!string.IsNullOrEmpty(Model.CoverImagePath))
+                    {
+                        <img src="@Model.CoverImagePath" alt="@Model.Title" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-book text-white\' style=\'font-size: 5rem;\'></i>';" />
+                    }
+                    else
+                    {
+                        <i class="fa-solid fa-book text-white" style="font-size: 5rem;"></i>
+                    }
+                </div>
+                <div class="text-center mt-3">
+                    <span class="kozy-status-badge @(Model.Status == "Available" ? "kozy-status-available" : "kozy-status-borrowed")">
+                        @Model.Status
+                    </span>
+                </div>
+            </div>
+
+            <!-- Book Information -->
+            <div class="kozy-book-info-section">
+                <h1>@Model.Title</h1>
+
+                <div class="kozy-book-meta">
+                    <div class="kozy-book-meta-item">
+                        <i class="fa-solid fa-user"></i>
+                        <span>@Model.Author</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Genre))
+                    {
+                        <div class="kozy-book-meta-item">
+                            <i class="fa-solid fa-bookmark"></i>
+                            <span>@Model.Genre</span>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Publisher))
+                    {
+                        <div class="kozy-book-meta-item">
+                            <i class="fa-solid fa-building"></i>
+                            <span>@Model.Publisher</span>
+                        </div>
+                    }
+                    @if (Model.DatePublished.HasValue)
+                    {
+                        <div class="kozy-book-meta-item">
+                            <i class="fa-solid fa-calendar"></i>
+                            <span>@Model.DatePublished.Value.ToString("MMMM yyyy")</span>
+                        </div>
+                    }
+                    <div class="kozy-book-meta-item">
+                        <i class="fa-solid fa-barcode"></i>
+                        <span>@Model.BookCode</span>
+                    </div>
+                    <div class="kozy-book-meta-item">
+                        <i class="fa-solid fa-book-reader"></i>
+                        <span>Borrowed @Model.BorrowCount time@(Model.BorrowCount != 1 ? "s" : "")</span>
+                    </div>
+                </div>
+
+                <!-- Rating Display -->
+                <div class="kozy-rating-display">
+                    <div class="kozy-rating-stars">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            if (i <= Math.Floor(averageRating))
+                            {
+                                <i class="fa-solid fa-star"></i>
+                            }
+                            else if (i <= Math.Ceiling(averageRating) && averageRating % 1 != 0)
+                            {
+                                <i class="fa-solid fa-star-half-stroke"></i>
+                            }
+                            else
+                            {
+                                <i class="fa-regular fa-star"></i>
+                            }
+                        }
+                    </div>
+                    <div class="kozy-rating-text">
+                        @if (reviewCount > 0)
+                        {
+                            <span>@averageRating.ToString("0.0") / 5.0</span>
+                            <span style="color: #9CA3AF;">(@reviewCount review@(reviewCount != 1 ? "s" : ""))</span>
+                        }
+                        else
+                        {
+                            <span style="color: #9CA3AF;">No reviews yet</span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Description -->
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <div class="kozy-description-section">
+                        <h3>Description</h3>
+                        <p class="kozy-description-text">@Model.Description</p>
+                    </div>
+                }
+
+                <!-- Action Buttons -->
+                <div class="kozy-action-buttons">
+                    @if (Model.Status == "Available")
+                    {
+                        <button type="button" class="kozy-btn-action kozy-btn-borrow" onclick="toggleBorrowForm()">
+                            <i class="fa-solid fa-book-reader"></i>
+                            Borrow Book
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="kozy-btn-action kozy-btn-disabled" disabled>
+                            <i class="fa-solid fa-ban"></i>
+                            Currently Unavailable
+                        </button>
+                    }
+
+                    <button type="button" class="kozy-btn-action kozy-btn-review" onclick="toggleReviewForm()">
+                        <i class="fa-solid fa-star"></i>
+                        Write a Review
+                    </button>
+
+                    <button type="button" class="kozy-btn-action kozy-btn-history" onclick="toggleBorrowingHistory()">
+                        <i class="fa-solid fa-history"></i>
+                        Borrowing History
+                    </button>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.BookID" class="kozy-btn-action kozy-btn-edit">
+                            <i class="fa-solid fa-edit"></i>
+                            Edit Book
+                        </a>
+                        <form asp-action="Delete" asp-route-id="@Model.BookID" method="post" onsubmit="return confirm('Are you sure you want to delete this book? This action cannot be undone.');" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="kozy-btn-action kozy-btn-delete">
+                                <i class="fa-solid fa-trash"></i>
+                                Delete Book
+                            </button>
+                        </form>
+                    }
+                </div>
+
+                <!-- Borrow Form (Collapsible) -->
+                <div id="borrowForm" class="kozy-borrow-form" style="display: none;">
+                    <h4 style="margin-bottom: 1rem; color: #2F3030;">Borrow This Book</h4>
+                    <form asp-controller="Borrowing" asp-action="BorrowBook" asp-route-bookId="@Model.BookID" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="kozy-form-group">
+                            <label class="kozy-form-label">Select Borrow Date <span style="color: #EF4444;">*</span></label>
+                            <input type="date" name="borrowDate" class="kozy-form-input" value="@DateTime.Now.ToString("yyyy-MM-dd")" min="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                            <small style="color: #6B7280; display: block; margin-top: 0.5rem;">You can borrow the book today or reserve it for a future date. Return date will be 2 weeks from the selected date.</small>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="kozy-btn-action kozy-btn-borrow">
+                                <i class="fa-solid fa-check"></i>
+                                Confirm Borrow
+                            </button>
+                            <button type="button" class="kozy-btn-action" style="background: #6B7280; color: white;" onclick="toggleBorrowForm()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Review Form (Collapsible) -->
+                <div id="reviewForm" class="kozy-review-form" style="display: none;">
+                    <h4 style="margin-bottom: 1rem; color: #2F3030;">Submit Your Review</h4>
+                    <form asp-controller="Review" asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="BookID" value="@Model.BookID" />
+                        <div class="kozy-form-group">
+                            <label class="kozy-form-label">Rating <span style="color: #EF4444;">*</span></label>
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="Rating" value="5" required />
+                                <label for="star5" title="5 stars"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star4" name="Rating" value="4" />
+                                <label for="star4" title="4 stars"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star3" name="Rating" value="3" />
+                                <label for="star3" title="3 stars"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star2" name="Rating" value="2" />
+                                <label for="star2" title="2 stars"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star1" name="Rating" value="1" />
+                                <label for="star1" title="1 star"><i class="fa-solid fa-star"></i></label>
+                            </div>
+                        </div>
+                        <div class="kozy-form-group">
+                            <label class="kozy-form-label">Comment</label>
+                            <textarea name="Comment" class="kozy-textarea" placeholder="Share your thoughts about this book..."></textarea>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="kozy-btn-action kozy-btn-review">
+                                <i class="fa-solid fa-check"></i>
+                                Submit Review
+                            </button>
+                            <button type="button" class="kozy-btn-action" style="background: #6B7280; color: white;" onclick="toggleReviewForm()">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Borrowing History (Collapsible) -->
+                <div id="borrowingHistory" class="kozy-review-form" style="display: none; margin-top: 1rem;">
+                    <h4 style="margin-bottom: 1rem; color: #2F3030;">Borrowing History</h4>
+                    @if (borrowings.Any())
+                    {
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            @foreach (var borrowing in borrowings)
+                            {
+                                <div class="kozy-review-item">
+                                    <div class="kozy-review-header">
+                                        <div>
+                                            <div class="kozy-review-user">@borrowing.UserName</div>
+                                            <div class="kozy-review-date">Borrowed: @borrowing.BorrowDate.ToString("MMMM dd, yyyy")</div>
+                                        </div>
+                                        <span class="kozy-status-badge @(borrowing.Status == "Active" ? "kozy-status-available" : borrowing.Status == "Overdue" ? "kozy-status-borrowed" : "kozy-status-available")">
+                                            @borrowing.Status
+                                        </span>
+                                    </div>
+                                    <div style="color: #6B7280; font-size: 0.875rem;">
+                                        <div>Due Date: @borrowing.DueDate.ToString("MMMM dd, yyyy")</div>
+                                        @if (borrowing.ReturnDate.HasValue)
+                                        {
+                                            <div>Returned: @borrowing.ReturnDate.Value.ToString("MMMM dd, yyyy")</div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p style="color: #6B7280; text-align: center; padding: 2rem;">No borrowing history available for this book.</p>
+                    }
+                    <button type="button" class="kozy-btn-action" style="background: #6B7280; color: white; margin-top: 1rem;" onclick="toggleBorrowingHistory()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="kozy-reviews-section">
+        <div class="kozy-reviews-header">
+            <h2 class="kozy-reviews-title">Reviews (@reviewCount)</h2>
+        </div>
+
+        @if (reviews.Any())
+        {
+            @foreach (var review in reviews.OrderByDescending(r => r.ReviewDate))
+            {
+                <div class="kozy-review-item">
+                    <div class="kozy-review-header">
+                        <div>
+                            <div class="kozy-review-user">@review.UserName</div>
+                            <div class="kozy-review-date">@review.ReviewDate.ToString("MMMM dd, yyyy")</div>
+                        </div>
+                        <div class="kozy-review-rating">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= review.Rating)
+                                {
+                                    <i class="fa-solid fa-star"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa-regular fa-star"></i>
+                                }
+                            }
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(review.Comment))
+                    {
+                        <div class="kozy-review-comment">@review.Comment</div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <p style="color: #6B7280; text-align: center; padding: 2rem;">No reviews yet. Be the first to review this book!</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleBorrowForm() {
+            const form = document.getElementById('borrowForm');
+            const reviewForm = document.getElementById('reviewForm');
+            const history = document.getElementById('borrowingHistory');
+            
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                reviewForm.style.display = 'none';
+                history.style.display = 'none';
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        function toggleReviewForm() {
+            const form = document.getElementById('reviewForm');
+            const borrowForm = document.getElementById('borrowForm');
+            const history = document.getElementById('borrowingHistory');
+            
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                borrowForm.style.display = 'none';
+                history.style.display = 'none';
+                form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                form.style.display = 'none';
+            }
+        }
+
+        function toggleBorrowingHistory() {
+            const history = document.getElementById('borrowingHistory');
+            const borrowForm = document.getElementById('borrowForm');
+            const reviewForm = document.getElementById('reviewForm');
+            
+            if (history.style.display === 'none' || history.style.display === '') {
+                history.style.display = 'block';
+                borrowForm.style.display = 'none';
+                reviewForm.style.display = 'none';
+                history.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                history.style.display = 'none';
+            }
+        }
+
+        // Show notification toast if TempData has messages
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            if (typeof showNotificationToast !== 'undefined') {
+                showNotificationToast('success', '@TempData["SuccessMessage"]');
+            }
+            </text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+            if (typeof showNotificationToast !== 'undefined') {
+                showNotificationToast('error', '@TempData["ErrorMessage"]');
+            }
+            </text>
+        }
+    </script>
+}
+

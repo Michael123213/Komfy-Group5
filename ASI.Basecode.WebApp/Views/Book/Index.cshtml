@@ -351,8 +351,7 @@
     <div class="kozy-book-grid">
         @foreach (var item in Model)
         {
-            <div class="kozy-book-card-modern animate-fade-in-up"
-                 data-bs-toggle="modal" data-bs-target="#bookModal-@item.BookID">
+            <div class="kozy-book-card-modern animate-fade-in-up" onclick="window.location.href='@Url.Action("Details", "Book", new { id = item.BookID })'" style="cursor: pointer;">
                 <!-- Book Cover Image -->
                 <div class="kozy-book-cover-modern">
                     @if (!string.IsNullOrEmpty(item.CoverImagePath))
