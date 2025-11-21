@@ -2448,8 +2448,10 @@
             }
 
             function setTooShort(msg) {
-                registerAvail.style.color = '#DC2626';
-                registerAvail.textContent = msg;
+                // Put the message into the server/client validation span so unobtrusive validation shows a single message
+                const serverSpan = document.getElementById('registerUserIdError'); if (serverSpan) serverSpan.textContent = msg;
+                // clear availability hint
+                if (registerAvail) registerAvail.textContent = '';
                 registerUserId.classList.add('invalid');
                 registerUserId.classList.remove('success');
                 const live = document.getElementById('landingAriaLive'); if (live) live.textContent = msg;
@@ -2513,8 +2515,10 @@
             }
 
             function setEmailInvalid(msg) {
-                registerEmailAvail.style.color = '#DC2626';
-                registerEmailAvail.textContent = msg;
+                // Put the message into the server/client validation span to avoid duplicate messages
+                const serverEmailSpan = document.getElementById('registerEmailError'); if (serverEmailSpan) serverEmailSpan.textContent = msg;
+                // clear availability hint
+                if (registerEmailAvail) registerEmailAvail.textContent = '';
                 registerEmail.classList.add('invalid');
                 registerFormBtn2.disabled = true;
             }

@@ -409,10 +409,9 @@
                         usernameAvailEl.textContent = '';
                         if (!value) { setUsernameNeutral(''); return; }
                         if (value.length < 6) { 
-                            // too short - show hint and disable
-                            usernameAvailEl.style.color = '#DC2626';
-                            usernameAvailEl.textContent = 'Username must be at least 6 characters.';
-                            // hint element removed; show message in availability element instead
+                            // too short - place message into the validation span and clear availability hint to avoid duplicates
+                            if (usernameValidationSpan) usernameValidationSpan.textContent = 'Username must be at least 6 characters.';
+                            usernameAvailEl.textContent = '';
                             if (registerBtn2) { registerBtn2.disabled = true; registerBtn2.classList.add('disabled'); }
                             return;
                         }
@@ -505,7 +504,11 @@
                 }
 
                 if (!isValidEmailFormat(value)) {
-                    setUnavailable('Invalid email address format.');
+                    // write into validation span and clear availability hint to avoid duplicate messages
+                    if (validationSpan) validationSpan.textContent = 'Invalid email address format.';
+                    availabilityEl.textContent = '';
+                    // Do not call setUnavailable here to avoid duplicating the message in the availability element
+                    registerBtn.disabled = true;
                     return;
                 }
 
