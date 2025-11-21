@@ -325,14 +325,15 @@ h1, h2, h3, h4, h5, h6 {
     top: 0;
     left: 280px;
     right: 0;
-    z-index: 100;
+    z-index: 50;
     transition: left var(--kozy-transition-base);
     overflow: visible;
     min-width: 0;
     max-width: 100%;
 }
 
-.kozy-main-content.sidebar-collapsed .kozy-header {
+/* When sidebar is collapsed, header should extend to full width */
+.kozy-header.sidebar-collapsed {
     left: 0;
 }
 
