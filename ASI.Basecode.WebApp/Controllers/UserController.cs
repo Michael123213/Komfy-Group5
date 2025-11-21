@@ -98,23 +98,23 @@ namespace ASI.Basecode.WebApp.Controllers
             return View(model);
         }
 
-        // POST: /User/Delete/{id} (DELETE: Process deletion)
-        [HttpPost, ActionName("Delete")]
+        // POST: /User/ToggleActivation/{id} (TOGGLE: Activate/Deactivate user)
+        [HttpPost, ActionName("ToggleActivation")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(string id)
+        public IActionResult ToggleActivation(string id)
         {
             try
             {
-                _userService.DeleteUser(id);
-                TempData["SuccessMessage"] = "User deleted successfully.";
+                _userService.ToggleUserActivation(id);
+                TempData["SuccessMessage"] = "User status updated successfully.";
             }
             catch (KeyNotFoundException)
             {
-                TempData["ErrorMessage"] = "User not found or already deleted.";
+                TempData["ErrorMessage"] = "User not found.";
             }
             catch (System.Exception ex)
             {
-                TempData["ErrorMessage"] = $"Error deleting user: {ex.Message}";
+                TempData["ErrorMessage"] = $"Error updating user status: {ex.Message}";
             }
             return RedirectToAction(nameof(Index));
         }
